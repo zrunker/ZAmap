@@ -105,6 +105,8 @@ public class ZMapView extends MapView implements
     private String mCurrentCityName = "北京";// 当前城市名称
     private int mRouteType = ROUTE_TYPE_DRIVE;// 交通类型
     private int mSearchMode = RouteSearch.DRIVING_SINGLE_DEFAULT;// 当前查询模式
+    private int mSearchRouteStartIcon = R.drawable.amap_start;
+    private int mSearchRouteEndIcon = R.drawable.amap_end;
 
     private PoiSearch.Query mPoiQuery;// Poi查询条件类
     private PoiSearch mPoiSearch;// POI搜索
@@ -876,6 +878,17 @@ public class ZMapView extends MapView implements
      * @param startPoint 起点坐标
      * @param endPoint   终点坐标
      */
+    public ZMapView searchRouteResult(LatLonPoint startPoint, LatLonPoint endPoint, int startIcon, int endIcon) {
+        mSearchRouteStartIcon = startIcon;
+        mSearchRouteEndIcon = endIcon;
+        return searchRouteResult(startPoint, endPoint);
+    }
+    /**
+     * 开始搜索路径规划方案
+     *
+     * @param startPoint 起点坐标
+     * @param endPoint   终点坐标
+     */
     public ZMapView searchRouteResult(LatLonPoint startPoint, LatLonPoint endPoint) {
         if (startPoint == null) {
             if (zRouteSearchListener != null)
@@ -945,7 +958,7 @@ public class ZMapView extends MapView implements
                     drivingRouteOverlay.setNodeIconVisibility(false);// 设置节点marker是否显示
                     drivingRouteOverlay.setIsColorfulline(true);// 是否用颜色展示交通拥堵情况，默认true
                     drivingRouteOverlay.removeFromMap();
-                    drivingRouteOverlay.addToMap();
+                    drivingRouteOverlay.addToMap(mSearchRouteStartIcon, mSearchRouteEndIcon);
                     drivingRouteOverlay.zoomToSpan();
                 }
 
@@ -982,7 +995,7 @@ public class ZMapView extends MapView implements
                             walkRouteResult.getStartPos(),
                             walkRouteResult.getTargetPos()
                     );
-                    walkRouteOverlay.addToMap();
+                    walkRouteOverlay.addToMap(mSearchRouteStartIcon, mSearchRouteEndIcon);
                     walkRouteOverlay.zoomToSpan();
                 }
 
@@ -1019,7 +1032,7 @@ public class ZMapView extends MapView implements
                             rideRouteResult.getStartPos(),
                             rideRouteResult.getTargetPos());
                     rideRouteOverlay.removeFromMap();
-                    rideRouteOverlay.addToMap();
+                    rideRouteOverlay.addToMap(mSearchRouteStartIcon, mSearchRouteEndIcon);
                     rideRouteOverlay.zoomToSpan();
                 }
 
@@ -1056,7 +1069,7 @@ public class ZMapView extends MapView implements
                             busRouteResult.getStartPos(),
                             busRouteResult.getTargetPos());
                     busrouteOverlay.removeFromMap();
-                    busrouteOverlay.addToMap();
+                    busrouteOverlay.addToMap(mSearchRouteStartIcon, mSearchRouteEndIcon);
                     busrouteOverlay.zoomToSpan();
                 }
 

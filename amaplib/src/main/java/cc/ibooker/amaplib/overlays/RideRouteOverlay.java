@@ -54,7 +54,7 @@ public class RideRouteOverlay extends RouteOverlay {
      *
      * @since V3.5.0
      */
-    public void addToMap() {
+    public void addToMap(int startRes, int endRes) {
 
         initPolylineOptions();
         try {
@@ -69,7 +69,7 @@ public class RideRouteOverlay extends RouteOverlay {
                 addRidePolyLines(rideStep);
             }
             mPolylineOptions.add(endPoint);
-            addStartAndEndMarker();
+            addStartAndEndMarker(startRes, endRes);
 
             showPolyline();
         } catch (Throwable e) {

@@ -58,7 +58,7 @@ public class BusRouteOverlay extends RouteOverlay {
      * @since V2.1.0
      */
 
-    public void addToMap() {
+    public void addToMap(int startRes, int endRes) {
         /**
          * 绘制节点和线<br>
          * 细节情况较多<br>
@@ -150,7 +150,7 @@ public class BusRouteOverlay extends RouteOverlay {
                     addTaxiMarkers(busStep.getTaxi());
                 }
             }
-            addStartAndEndMarker();
+            addStartAndEndMarker(startRes, endRes);
 
         } catch (Throwable e) {
             e.printStackTrace();

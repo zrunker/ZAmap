@@ -87,8 +87,10 @@ public class RouteOverlay {
      * @return 更换的Marker图片。
      * @since V2.1.0
      */
-    protected BitmapDescriptor getStartBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.drawable.amap_start);
+    protected BitmapDescriptor getStartBitmapDescriptor(int res) {
+        if (res == 0)
+            res = R.drawable.amap_start;
+        return BitmapDescriptorFactory.fromResource(res);
     }
 
     /**
@@ -97,8 +99,10 @@ public class RouteOverlay {
      * @return 更换的Marker图片。
      * @since V2.1.0
      */
-    protected BitmapDescriptor getEndBitmapDescriptor() {
-        return BitmapDescriptorFactory.fromResource(R.drawable.amap_end);
+    protected BitmapDescriptor getEndBitmapDescriptor(int res) {
+        if (res == 0)
+            res = R.drawable.amap_end;
+        return BitmapDescriptorFactory.fromResource(res);
     }
 
     /**
@@ -129,16 +133,20 @@ public class RouteOverlay {
         return BitmapDescriptorFactory.fromResource(R.drawable.amap_ride);
     }
 
-    protected void addStartAndEndMarker() {
+    protected void addStartAndEndMarker(int startRes, int endRes) {
         startMarker = mAMap.addMarker((new MarkerOptions())
-                .position(startPoint).icon(getStartBitmapDescriptor())
+                .position(startPoint).icon(getStartBitmapDescriptor(startRes))
                 .title("\u8D77\u70B9"));
         // startMarker.showInfoWindow();
 
         endMarker = mAMap.addMarker((new MarkerOptions()).position(endPoint)
-                .icon(getEndBitmapDescriptor()).title("\u7EC8\u70B9"));
+                .icon(getEndBitmapDescriptor(endRes)).title("\u7EC8\u70B9"));
         // mAMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint,
         // getShowRouteZoom()));
+    }
+
+    protected void addStartAndEndMarker() {
+        addStartAndEndMarker(R.drawable.amap_start, R.drawable.amap_end);
     }
 
     /**
