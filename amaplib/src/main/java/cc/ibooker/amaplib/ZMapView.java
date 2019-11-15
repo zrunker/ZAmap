@@ -1238,11 +1238,12 @@ public class ZMapView extends MapView implements
     /**
      * 打开GPS设置
      */
-    public void openGPSSetting() {
+    public ZMapView openGPSSetting() {
         if (!checkGpsIsOpen()) {
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             getContext().startActivity(intent);
         }
+        return this;
     }
 
 }
