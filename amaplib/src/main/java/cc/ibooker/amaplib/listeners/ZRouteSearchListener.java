@@ -5,6 +5,8 @@ import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.WalkRouteResult;
 
+import java.util.ArrayList;
+
 /**
  * 路线规划搜索结果监听
  *
@@ -22,11 +24,11 @@ public interface ZRouteSearchListener {
 
     void onRouteSearchSuccess();
 
-    void onDriveNext(DriveRouteResult result);
+    void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList);
 
-    void onWalkNext(WalkRouteResult result);
+    void onWalkNext(WalkRouteResult result, ArrayList<Float> distanceList);
 
-    void onRideNext(RideRouteResult result);
+    void onRideNext(RideRouteResult result, ArrayList<Float> distanceList);
 
-    void onBusNext(BusRouteResult result);
+    void onBusNext(BusRouteResult result, ArrayList<Float> distanceList);
 }

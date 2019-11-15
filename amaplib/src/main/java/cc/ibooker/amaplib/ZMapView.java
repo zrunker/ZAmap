@@ -53,6 +53,7 @@ import com.autonavi.amap.mapcore.interfaces.IMapFragmentDelegate;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cc.ibooker.amaplib.dto.LocationData;
@@ -944,9 +945,14 @@ public class ZMapView extends MapView implements
             if (result != null
                     && result.getPaths() != null
                     && result.getPaths().size() > 0) {
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onDriveNext(result);
-                else {
+                if (zRouteSearchListener != null) {
+                    ArrayList<Float> list = new ArrayList<>();
+                    List<DrivePath> drivePathList = result.getPaths();
+                    for (DrivePath drivePath : drivePathList)
+                        list.add(drivePath.getDistance());
+                    Collections.sort(list);
+                    zRouteSearchListener.onDriveNext(result, list);
+                } else {
                     DrivePath drivePath = result.getPaths().get(0);
                     DrivingRouteOverlay drivingRouteOverlay = new DrivingRouteOverlay(
                             getContext(),
@@ -985,9 +991,14 @@ public class ZMapView extends MapView implements
             if (walkRouteResult != null
                     && walkRouteResult.getPaths() != null
                     && walkRouteResult.getPaths().size() > 0) {
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onWalkNext(walkRouteResult);
-                else {
+                if (zRouteSearchListener != null) {
+                    ArrayList<Float> list = new ArrayList<>();
+                    List<WalkPath> walkPathList = walkRouteResult.getPaths();
+                    for (WalkPath walkPath : walkPathList)
+                        list.add(walkPath.getDistance());
+                    Collections.sort(list);
+                    zRouteSearchListener.onWalkNext(walkRouteResult, list);
+                } else {
                     WalkPath walkPath = walkRouteResult.getPaths().get(0);
                     WalkRouteOverlay walkRouteOverlay = new WalkRouteOverlay(
                             getContext(),
@@ -1022,9 +1033,14 @@ public class ZMapView extends MapView implements
             if (rideRouteResult != null
                     && rideRouteResult.getPaths() != null
                     && rideRouteResult.getPaths().size() > 0) {
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onRideNext(rideRouteResult);
-                else {
+                if (zRouteSearchListener != null) {
+                    ArrayList<Float> list = new ArrayList<>();
+                    List<RidePath> ridePathList = rideRouteResult.getPaths();
+                    for (RidePath ridePath : ridePathList)
+                        list.add(ridePath.getDistance());
+                    Collections.sort(list);
+                    zRouteSearchListener.onRideNext(rideRouteResult, list);
+                } else {
                     RidePath ridePath = rideRouteResult.getPaths().get(0);
                     RideRouteOverlay rideRouteOverlay = new RideRouteOverlay(
                             getContext(),
@@ -1059,9 +1075,14 @@ public class ZMapView extends MapView implements
             if (busRouteResult != null
                     && busRouteResult.getPaths() != null
                     && busRouteResult.getPaths().size() > 0) {
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onBusNext(busRouteResult);
-                else {
+                if (zRouteSearchListener != null) {
+                    ArrayList<Float> list = new ArrayList<>();
+                    List<BusPath> busPathList = busRouteResult.getPaths();
+                    for (BusPath buspath : busPathList)
+                        list.add(buspath.getDistance());
+                    Collections.sort(list);
+                    zRouteSearchListener.onBusNext(busRouteResult, list);
+                } else {
                     BusPath buspath = busRouteResult.getPaths().get(0);
                     BusRouteOverlay busrouteOverlay = new BusRouteOverlay(
                             getContext(),

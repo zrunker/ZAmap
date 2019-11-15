@@ -5,6 +5,8 @@ import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.WalkRouteResult;
 
+import java.util.ArrayList;
+
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 
 /**
@@ -39,22 +41,22 @@ public class RouteSearchListenerClass implements ZRouteSearchListener {
     }
 
     @Override
-    public void onDriveNext(DriveRouteResult result) {
+    public void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList) {
 
     }
 
     @Override
-    public void onWalkNext(WalkRouteResult result) {
+    public void onWalkNext(WalkRouteResult result, ArrayList<Float> distanceList) {
 
     }
 
     @Override
-    public void onRideNext(RideRouteResult result) {
+    public void onRideNext(RideRouteResult result, ArrayList<Float> distanceList) {
 
     }
 
     @Override
-    public void onBusNext(BusRouteResult result) {
+    public void onBusNext(BusRouteResult result, ArrayList<Float> distanceList) {
 
     }
 }
