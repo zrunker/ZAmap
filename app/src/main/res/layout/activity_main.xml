@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <cc.ibooker.amaplib.ZMapView
+        android:id="@+id/amapView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onLocation"
+                android:padding="10dp"
+                android:text="定位"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onDriving"
+                android:padding="10dp"
+                android:text="驾车路线规划"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onBus"
+                android:padding="10dp"
+                android:text="公交路线规划"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onWalk"
+                android:padding="10dp"
+                android:text="步行路线规划"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onRide"
+                android:padding="10dp"
+                android:text="骑行路线规划"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onPoiSearch"
+                android:padding="10dp"
+                android:text="POI搜索"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onAddMarker"
+                android:padding="10dp"
+                android:text="添加Marker"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onAddAnimMarker"
+                android:padding="10dp"
+                android:text="添加动态Marker"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onMarker"
+                android:padding="10dp"
+                android:text="始终Marker"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onScaleVisible"
+                android:padding="10dp"
+                android:text="缩放按钮不可见"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onScale"
+                android:padding="10dp"
+                android:text="改变缩放比例"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="setMapLimits"
+                android:padding="10dp"
+                android:text="限制地图范围"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onDefaultPoint"
+                android:padding="10dp"
+                android:text="默认位置"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@color/blue"
+                android:onClick="onElse"
+                android:padding="10dp"
+                android:text="其他方法"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</FrameLayout>
