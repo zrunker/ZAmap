@@ -883,6 +883,7 @@ public class ZMapView extends MapView implements
         mSearchRouteEndIcon = endIcon;
         return searchRouteResult(startPoint, endPoint);
     }
+
     /**
      * 开始搜索路径规划方案
      *
