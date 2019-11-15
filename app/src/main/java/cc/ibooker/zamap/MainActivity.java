@@ -108,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView.setCurrentCity(mStartPoint, 11)
                 .setShowMapText(true)
                 .setShowBuildings(true);
+        zAmapView.getAMap();
+        zAmapView.getLocationClient();
+        zAmapView.getLocationOption();
+        zAmapView.getUiSettings();
     }
 
     // 定位
