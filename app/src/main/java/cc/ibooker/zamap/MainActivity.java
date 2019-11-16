@@ -11,6 +11,8 @@ import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.WalkRouteResult;
 
+import java.util.ArrayList;
+
 import cc.ibooker.amaplib.ZMapView;
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 
@@ -252,22 +254,23 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
     }
 
     @Override
-    public void onDriveNext(DriveRouteResult result) {
+    public void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onDriveNext", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onWalkNext(WalkRouteResult result) {
+    public void onWalkNext(WalkRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onWalkNext", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onRideNext(RideRouteResult result) {
+    public void onRideNext(RideRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onRideNext", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onBusNext(BusRouteResult result) {
+    public void onBusNext(BusRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onBusNext", Toast.LENGTH_SHORT).show();
     }
+
 }
