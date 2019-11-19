@@ -24,11 +24,35 @@ public interface ZRouteSearchListener {
 
     void onRouteSearchSuccess();
 
+    /**
+     * 驾车路径规划结果
+     *
+     * @param result       结果集合
+     * @param distanceList 距离集合
+     */
     void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList);
 
+    /**
+     * 步行路径规划结果
+     *
+     * @param result       结果集合
+     * @param distanceList 距离集合
+     */
     void onWalkNext(WalkRouteResult result, ArrayList<Float> distanceList);
 
+    /**
+     * 骑行路径规划结果
+     *
+     * @param result       结果集合
+     * @param distanceList 距离集合
+     */
     void onRideNext(RideRouteResult result, ArrayList<Float> distanceList);
 
+    /**
+     * 公交车路径规划结果
+     *
+     * @param result       结果集合
+     * @param distanceList 距离集合
+     */
     void onBusNext(BusRouteResult result, ArrayList<Float> distanceList);
 }

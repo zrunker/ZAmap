@@ -42,6 +42,9 @@ import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.amap.api.services.route.BusPath;
 import com.amap.api.services.route.BusRouteResult;
+import com.amap.api.services.route.DistanceItem;
+import com.amap.api.services.route.DistanceResult;
+import com.amap.api.services.route.DistanceSearch;
 import com.amap.api.services.route.DrivePath;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RidePath;
@@ -57,6 +60,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cc.ibooker.amaplib.dto.LocationData;
+import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
 import cc.ibooker.amaplib.listeners.ZLocationListener;
 import cc.ibooker.amaplib.listeners.ZMapLoadedListener;
 import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
@@ -122,6 +126,17 @@ public class ZMapView extends MapView implements
     private boolean mFirstLocationFix = false;
     private Marker mLocationMarker;
     private Circle mLocationCircle;
+
+    // 计算距离
+    private DistanceSearch distanceSearch;
+
+    // 计算距离监听
+    private ZDistanceSearchListener zDistanceSearchListener;
+
+    public ZMapView setDistanceSearchListener(ZDistanceSearchListener zDistanceSearchListener) {
+        this.zDistanceSearchListener = zDistanceSearchListener;
+        return this;
+    }
 
     // 定位监听
     private ZLocationListener zLocationListener;
@@ -1120,6 +1135,8 @@ public class ZMapView extends MapView implements
             zLocationListener.onLocationError(e);
         if (zMapLoadedListener != null)
             zMapLoadedListener.onMapError(e);
+        if (zDistanceSearchListener != null)
+            zDistanceSearchListener.onDistanceSearchError(e);
     }
 
     // Map加载完成
@@ -1279,6 +1296,71 @@ public class ZMapView extends MapView implements
             getContext().startActivity(intent);
         }
         return this;
+    }
+
+    /**
+     * 计算两点距离
+     *
+     * @param startPoint 起点坐标
+     * @param endPoint   终点坐标
+     */
+    public ZMapView calculateRouteDistance(LatLonPoint startPoint, LatLonPoint endPoint) {
+        ArrayList<LatLonPoint> startPoints = new ArrayList<>();
+        startPoints.add(startPoint);
+        return calculateRouteDistance(startPoints, endPoint);
+    }
+
+    /**
+     * 计算两点距离
+     *
+     * @param startPoints 起点坐标集合
+     * @param endPoint    终点坐标
+     */
+    public ZMapView calculateRouteDistance(ArrayList<LatLonPoint> startPoints, LatLonPoint endPoint) {
+        if (zDistanceSearchListener != null)
+            zDistanceSearchListener.onDistanceSearchStart();
+        if (distanceSearch == null)
+            distanceSearch = new DistanceSearch(this.getContext());
+        DistanceSearch.DistanceQuery distanceQuery = new DistanceSearch.DistanceQuery();
+        // 设置起点和终点，其中起点支持多个
+        distanceQuery.setOrigins(startPoints);
+        distanceQuery.setDestination(endPoint);
+        // 设置测量方式，支持直线和驾车
+        distanceQuery.setType(DistanceSearch.TYPE_DRIVING_DISTANCE);
+        distanceSearch.setDistanceSearchListener(new DistanceSearch.OnDistanceSearchListener() {
+            @Override
+            public void onDistanceSearched(DistanceResult distanceResult, int errorCode) {
+                if (zDistanceSearchListener != null)
+                    zDistanceSearchListener.onDistanceSearchComplete();
+                if (errorCode == 1000) {
+                    List<DistanceItem> list = distanceResult.getDistanceResults();
+                    if (list != null) {
+                        ArrayList<Float> distanceList = new ArrayList<>();
+                        for (DistanceItem distanceItem : list)
+                            distanceList.add(distanceItem.getDistance());
+                        if (zDistanceSearchListener != null)
+                            zDistanceSearchListener.onDistanceSearched(distanceResult, distanceList);
+                    }
+                    if (zDistanceSearchListener != null)
+                        zDistanceSearchListener.onDistanceSearchSuccess();
+                } else {
+                    if (zDistanceSearchListener != null)
+                        zDistanceSearchListener.onDistanceSearchFail("计算失败：" + errorCode);
+                }
+            }
+        });
+        distanceSearch.calculateRouteDistanceAsyn(distanceQuery);
+        return this;
+    }
+
+    /**
+     * 将经纬度转换成坐标点
+     *
+     * @param pointx 经度
+     * @param pointy 纬度
+     */
+    public LatLonPoint convertToLatLonPoint(double pointx, double pointy) {
+        return new LatLonPoint(pointy, pointx);
     }
 
 }

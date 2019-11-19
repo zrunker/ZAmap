@@ -22,5 +22,11 @@ public interface ZPoiSearchListener {
 
     void onPoiSearchSuccess();
 
+    /**
+     * POI搜索结果
+     *
+     * @param poiItems         单项POI信息
+     * @param suggestionCities 建议城市
+     */
     void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities);
 }

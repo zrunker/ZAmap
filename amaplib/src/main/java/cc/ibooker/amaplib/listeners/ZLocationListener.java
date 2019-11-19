@@ -19,5 +19,10 @@ public interface ZLocationListener {
 
     void onLocationSuccess();
 
+    /**
+     * 定位结果相关信息
+     *
+     * @param locationData 定位相关信息
+     */
     void onLocationNext(LocationData locationData);
 }
