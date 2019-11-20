@@ -19,7 +19,7 @@ public interface ZDistanceSearchListener {
 
     void onDistanceSearchError(Throwable e);
 
-    void onDistanceSearchSuccess();
+//    void onDistanceSearchSuccess();
 
     /**
      * 测量距离返回结果

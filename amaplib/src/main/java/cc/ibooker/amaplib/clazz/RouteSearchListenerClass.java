@@ -36,11 +36,6 @@ public class RouteSearchListenerClass implements ZRouteSearchListener {
     }
 
     @Override
-    public void onRouteSearchSuccess() {
-
-    }
-
-    @Override
     public void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList) {
 
     }

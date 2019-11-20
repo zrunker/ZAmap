@@ -20,7 +20,7 @@ public interface ZPoiSearchListener {
 
     void onPoiSearchError(Throwable e);
 
-    void onPoiSearchSuccess();
+//    void onPoiSearchSuccess();
 
     /**
      * POI搜索结果
@@ -29,4 +29,12 @@ public interface ZPoiSearchListener {
      * @param suggestionCities 建议城市
      */
     void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities);
+
+    /**
+     * 单个Poi搜索结果
+     *
+     * @param poiItem   单个POI
+     * @param errorCode 错误码
+     */
+    void onPoiItemSearched(PoiItem poiItem, int errorCode);
 }

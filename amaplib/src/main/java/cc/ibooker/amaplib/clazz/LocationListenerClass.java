@@ -30,11 +30,6 @@ public class LocationListenerClass implements ZLocationListener {
     }
 
     @Override
-    public void onLocationSuccess() {
-
-    }
-
-    @Override
     public void onLocationNext(LocationData locationData) {
 
     }

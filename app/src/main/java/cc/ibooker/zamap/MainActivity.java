@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.BusRouteResult;
+import com.amap.api.services.route.DistanceResult;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.WalkRouteResult;
@@ -14,6 +15,7 @@ import com.amap.api.services.route.WalkRouteResult;
 import java.util.ArrayList;
 
 import cc.ibooker.amaplib.ZMapView;
+import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 
 public class MainActivity extends AppCompatActivity implements ZRouteSearchListener {
@@ -114,6 +116,13 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView.getLocationClient();
         zAmapView.getLocationOption();
         zAmapView.getUiSettings();
+        /**
+         * 将经纬度转换成坐标点
+         *
+         * @param pointx 经度
+         * @param pointy 纬度
+         */
+        zAmapView.convertToLatLonPoint(39.4156132, 112.4663);
     }
 
     // 定位
@@ -143,11 +152,6 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 //                    @Override
 //                    public void onLocationError(Throwable e) {
 //                        Toast.makeText(MainActivity.this, "定位: onLocationError " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onLocationSuccess() {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationSuccess", Toast.LENGTH_SHORT).show();
 //                    }
 //
 //                    @Override
@@ -215,11 +219,6 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 //                    }
 //
 //                    @Override
-//                    public void onPoiSearchSuccess() {
-//
-//                    }
-//
-//                    @Override
 //                    public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
 //
 //                    }
@@ -249,11 +248,6 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
     }
 
     @Override
-    public void onRouteSearchSuccess() {
-        Toast.makeText(MainActivity.this, "路线规划: onRouteSearchSuccess", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
     public void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onDriveNext", Toast.LENGTH_SHORT).show();
     }
@@ -271,6 +265,40 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
     @Override
     public void onBusNext(BusRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onBusNext", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 计算两点距离
+     */
+    public void calculateRouteDistance() {
+        if (zAmapView == null)
+            zAmapView = new ZMapView(this);
+        zAmapView.setDistanceSearchListener(new ZDistanceSearchListener() {
+            @Override
+            public void onDistanceSearchStart() {
+
+            }
+
+            @Override
+            public void onDistanceSearchComplete() {
+
+            }
+
+            @Override
+            public void onDistanceSearchFail(String message) {
+
+            }
+
+            @Override
+            public void onDistanceSearchError(Throwable e) {
+
+            }
+
+            @Override
+            public void onDistanceSearched(DistanceResult distanceResult, ArrayList<Float> distanceList) {
+
+            }
+        }).calculateRouteDistance(mStartPoint, mEndPoint);
     }
 
 }

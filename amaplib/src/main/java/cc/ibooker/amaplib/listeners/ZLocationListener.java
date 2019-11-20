@@ -17,7 +17,7 @@ public interface ZLocationListener {
 
     void onLocationError(Throwable e);
 
-    void onLocationSuccess();
+//    void onLocationSuccess();
 
     /**
      * 定位结果相关信息

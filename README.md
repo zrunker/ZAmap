@@ -1,5 +1,3 @@
-# ZAmap
-高德地图，地图，定位，POI搜索，路线规划封装。
 # 地图组件
 
 ### 引入方式
@@ -111,11 +109,6 @@ public void onLocation(View view) {
                 }
 
                 @Override
-                public void onLocationSuccess() {
-                    Toast.makeText(MainActivity.this, "定位: onLocationSuccess", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
                 public void onLocationNext(LocationData locationData) {
                     Toast.makeText(MainActivity.this, "定位: onLocationNext " + locationData.toString(), Toast.LENGTH_SHORT).show();
                 }
@@ -182,11 +175,6 @@ public void onRide(View view) {
                 }
 
                 @Override
-                public void onRouteSearchSuccess() {
-
-                }
-
-                @Override
                 public void onDriveNext(DriveRouteResult result, ArrayList<Float> distanceList) {
 
                 }
@@ -235,11 +223,6 @@ public void onPoiSearch(View view) {
 //
 //                    @Override
 //                    public void onPoiSearchError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPoiSearchSuccess() {
 //
 //                    }
 //
@@ -297,7 +280,15 @@ public void onElse(View view) {
     zAmapView.getAMap();
     zAmapView.getLocationClient();
     zAmapView.getLocationOption();
+    // 获取高德地图UI控制类
     zAmapView.getUiSettings();
+    /**
+     * 将经纬度转换成坐标点
+     *
+     * @param pointx 经度
+     * @param pointy 纬度
+     */
+     zAmapView.convertToLatLonPoint(39.4156132, 112.4663);
 }
 
 ...
@@ -330,11 +321,6 @@ public void calculateRouteDistance() {
 
         @Override
         public void onDistanceSearchError(Throwable e) {
-
-        }
-
-        @Override
-        public void onDistanceSearchSuccess() {
 
         }
 

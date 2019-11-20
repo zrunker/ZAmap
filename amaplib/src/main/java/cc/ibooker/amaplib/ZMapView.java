@@ -953,8 +953,6 @@ public class ZMapView extends MapView implements
     // 驾车规划结果
     @Override
     public void onDriveRouteSearched(DriveRouteResult result, int errorCode) {
-        if (zRouteSearchListener != null)
-            zRouteSearchListener.onRouteSearchComplete();
         getAMap().clear();// 清理地图上的所有覆盖物
         if (errorCode == AMapException.CODE_AMAP_SUCCESS) {
             if (result != null
@@ -984,8 +982,8 @@ public class ZMapView extends MapView implements
                     drivingRouteOverlay.zoomToSpan();
                 }
 
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onRouteSearchSuccess();
+//                if (zRouteSearchListener != null)
+//                    zRouteSearchListener.onRouteSearchSuccess();
             } else {
                 if (zRouteSearchListener != null)
                     zRouteSearchListener.onRouteSearchFail("未获取到任何数据！");
@@ -994,13 +992,13 @@ public class ZMapView extends MapView implements
             if (zRouteSearchListener != null)
                 zRouteSearchListener.onRouteSearchFail("路线规划失败：" + errorCode);
         }
+        if (zRouteSearchListener != null)
+            zRouteSearchListener.onRouteSearchComplete();
     }
 
     // 步行规划结果
     @Override
     public void onWalkRouteSearched(WalkRouteResult walkRouteResult, int errorCode) {
-        if (zRouteSearchListener != null)
-            zRouteSearchListener.onRouteSearchComplete();
         getAMap().clear();// 清理地图上的所有覆盖物
         if (errorCode == AMapException.CODE_AMAP_SUCCESS) {
             if (walkRouteResult != null
@@ -1026,8 +1024,8 @@ public class ZMapView extends MapView implements
                     walkRouteOverlay.zoomToSpan();
                 }
 
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onRouteSearchSuccess();
+//                if (zRouteSearchListener != null)
+//                    zRouteSearchListener.onRouteSearchSuccess();
             } else {
                 if (zRouteSearchListener != null)
                     zRouteSearchListener.onRouteSearchFail("未获取到任何数据！");
@@ -1036,13 +1034,13 @@ public class ZMapView extends MapView implements
             if (zRouteSearchListener != null)
                 zRouteSearchListener.onRouteSearchFail("路线规划失败：" + errorCode);
         }
+        if (zRouteSearchListener != null)
+            zRouteSearchListener.onRouteSearchComplete();
     }
 
     // 骑行规划结果
     @Override
     public void onRideRouteSearched(RideRouteResult rideRouteResult, int errorCode) {
-        if (zRouteSearchListener != null)
-            zRouteSearchListener.onRouteSearchComplete();
         getAMap().clear();// 清理地图上的所有覆盖物
         if (errorCode == AMapException.CODE_AMAP_SUCCESS) {
             if (rideRouteResult != null
@@ -1068,8 +1066,8 @@ public class ZMapView extends MapView implements
                     rideRouteOverlay.zoomToSpan();
                 }
 
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onRouteSearchSuccess();
+//                if (zRouteSearchListener != null)
+//                    zRouteSearchListener.onRouteSearchSuccess();
             } else {
                 if (zRouteSearchListener != null)
                     zRouteSearchListener.onRouteSearchFail("未获取到任何数据！");
@@ -1078,13 +1076,13 @@ public class ZMapView extends MapView implements
             if (zRouteSearchListener != null)
                 zRouteSearchListener.onRouteSearchFail("路线规划失败：" + errorCode);
         }
+        if (zRouteSearchListener != null)
+            zRouteSearchListener.onRouteSearchComplete();
     }
 
     // 公交车规划结果
     @Override
     public void onBusRouteSearched(BusRouteResult busRouteResult, int errorCode) {
-        if (zRouteSearchListener != null)
-            zRouteSearchListener.onRouteSearchComplete();
         getAMap().clear();// 清理地图上的所有覆盖物
         if (errorCode == 1000) {
             if (busRouteResult != null
@@ -1110,8 +1108,8 @@ public class ZMapView extends MapView implements
                     busrouteOverlay.zoomToSpan();
                 }
 
-                if (zRouteSearchListener != null)
-                    zRouteSearchListener.onRouteSearchSuccess();
+//                if (zRouteSearchListener != null)
+//                    zRouteSearchListener.onRouteSearchSuccess();
             } else {
                 if (zRouteSearchListener != null)
                     zRouteSearchListener.onRouteSearchFail("未获取到任何数据！");
@@ -1120,6 +1118,8 @@ public class ZMapView extends MapView implements
             if (zRouteSearchListener != null)
                 zRouteSearchListener.onRouteSearchFail("路线规划失败：" + errorCode);
         }
+        if (zRouteSearchListener != null)
+            zRouteSearchListener.onRouteSearchComplete();
     }
 
     /**
@@ -1151,8 +1151,6 @@ public class ZMapView extends MapView implements
     // poi搜索结果
     @Override
     public void onPoiSearched(PoiResult poiResult, int errorCode) {
-        if (zPoiSearchListener != null)
-            zPoiSearchListener.onPoiSearchComplete();
         if (errorCode == 1000) {
             if (poiResult != null && poiResult.getQuery() != null) {// 搜索poi的结果
                 if (poiResult.getQuery().equals(mPoiQuery)) {// 是否是同一条
@@ -1173,8 +1171,8 @@ public class ZMapView extends MapView implements
                                 zPoiSearchListener.onPoiSearchFail("未查询到任何数据");
                         }
                     }
-                    if (zPoiSearchListener != null)
-                        zPoiSearchListener.onPoiSearchSuccess();
+//                    if (zPoiSearchListener != null)
+//                        zPoiSearchListener.onPoiSearchSuccess();
                 }
             } else {
                 if (zPoiSearchListener != null)
@@ -1184,18 +1182,19 @@ public class ZMapView extends MapView implements
             if (zPoiSearchListener != null)
                 zPoiSearchListener.onPoiSearchFail("POI搜索失败：" + errorCode);
         }
+        if (zPoiSearchListener != null)
+            zPoiSearchListener.onPoiSearchComplete();
     }
 
     @Override
-    public void onPoiItemSearched(PoiItem poiItem, int i) {
-
+    public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
+        if (zPoiSearchListener != null)
+            zPoiSearchListener.onPoiItemSearched(poiItem, errorCode);
     }
 
     // 定位结果
     @Override
     public void onLocationChanged(AMapLocation amapLocation) {
-        if (zLocationListener != null)
-            zLocationListener.onLocationComplete();
         if (amapLocation != null) {
             if (amapLocation.getErrorCode() == 0) {
                 // 定位成功回调信息，设置相关消息
@@ -1231,8 +1230,8 @@ public class ZMapView extends MapView implements
                     }
                 }
 
-                if (zLocationListener != null)
-                    zLocationListener.onLocationSuccess();
+//                if (zLocationListener != null)
+//                    zLocationListener.onLocationSuccess();
             } else {
                 // 显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
                 if (zLocationListener != null)
@@ -1246,6 +1245,8 @@ public class ZMapView extends MapView implements
             if (zLocationListener != null)
                 zLocationListener.onLocationFail("定位失败！");
         }
+        if (zLocationListener != null)
+            zLocationListener.onLocationComplete();
     }
 
     /**
@@ -1330,8 +1331,6 @@ public class ZMapView extends MapView implements
         distanceSearch.setDistanceSearchListener(new DistanceSearch.OnDistanceSearchListener() {
             @Override
             public void onDistanceSearched(DistanceResult distanceResult, int errorCode) {
-                if (zDistanceSearchListener != null)
-                    zDistanceSearchListener.onDistanceSearchComplete();
                 if (errorCode == 1000) {
                     List<DistanceItem> list = distanceResult.getDistanceResults();
                     if (list != null) {
@@ -1341,12 +1340,14 @@ public class ZMapView extends MapView implements
                         if (zDistanceSearchListener != null)
                             zDistanceSearchListener.onDistanceSearched(distanceResult, distanceList);
                     }
-                    if (zDistanceSearchListener != null)
-                        zDistanceSearchListener.onDistanceSearchSuccess();
+//                    if (zDistanceSearchListener != null)
+//                        zDistanceSearchListener.onDistanceSearchSuccess();
                 } else {
                     if (zDistanceSearchListener != null)
                         zDistanceSearchListener.onDistanceSearchFail("计算失败：" + errorCode);
                 }
+                if (zDistanceSearchListener != null)
+                    zDistanceSearchListener.onDistanceSearchComplete();
             }
         });
         distanceSearch.calculateRouteDistanceAsyn(distanceQuery);

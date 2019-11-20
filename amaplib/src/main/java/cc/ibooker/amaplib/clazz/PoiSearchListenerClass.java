@@ -34,12 +34,12 @@ public class PoiSearchListenerClass implements ZPoiSearchListener {
     }
 
     @Override
-    public void onPoiSearchSuccess() {
+    public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
 
     }
 
     @Override
-    public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
+    public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
 
     }
 }

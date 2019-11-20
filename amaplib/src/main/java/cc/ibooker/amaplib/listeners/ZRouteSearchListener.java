@@ -22,7 +22,7 @@ public interface ZRouteSearchListener {
 
     void onRouteSearchError(Throwable e);
 
-    void onRouteSearchSuccess();
+//    void onRouteSearchSuccess();
 
     /**
      * 驾车路径规划结果
