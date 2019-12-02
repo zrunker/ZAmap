@@ -254,6 +254,16 @@ public class ZMapView extends MapView implements
         return this;
     }
 
+    // 获取待检测的权限
+    public String[] getPermissions() {
+        return permissions;
+    }
+
+    // 获取权限返回请求码
+    public int getAMAP_REQUEST_CODE() {
+        return AMAP_REQUEST_CODE;
+    }
+
     // 获取AMap
     public AMap getAMap() {
         if (aMap == null)
