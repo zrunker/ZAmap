@@ -1,4 +1,10 @@
 # 地图组件
+* 功能一：显示地图
+* 功能二：路线规划
+* 功能三：POI搜索
+* 功能四：距离搜索-计算
+* 功能五：逆向地址查询
+* 功能六：定位
 
 ### 引入方式
 
@@ -15,6 +21,11 @@ api project(':amaplib')
 ```
 
 ### API说明：
+
+```
+private LatLonPoint mStartPoint = new LatLonPoint(39.955545, 116.20151);//起点，116.335891,39.942295
+private LatLonPoint mEndPoint = new LatLonPoint(39.954545, 116.30155);//终点，116.481288,39.995576
+```
 
 #### 一、显示地图：
 在布局文件中引入ZMapView：
@@ -79,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 #### 定位
 ```
 // 定位
-public void onLocation(View view) {
+public void onLocation() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     // 判断是否打开GPS
@@ -119,7 +130,7 @@ public void onLocation(View view) {
 #### 路线规划
 ```
 // 驾车规划
-public void onDriving(View view) {
+public void onDriving() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     zAmapView
@@ -129,7 +140,7 @@ public void onDriving(View view) {
 }
 
 // 公交规划
-public void onBus(View view) {
+public void onBus() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     zAmapView
@@ -139,7 +150,7 @@ public void onBus(View view) {
 }
 
 // 步行规划
-public void onWalk(View view) {
+public void onWalk() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     zAmapView
@@ -149,7 +160,7 @@ public void onWalk(View view) {
 }
 
 // 骑行规划
-public void onRide(View view) {
+public void onRide() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     zAmapView
@@ -201,7 +212,7 @@ public void onRide(View view) {
 #### POI搜索
 ```
 // POI搜索
-public void onPoiSearch(View view) {
+public void onPoiSearch() {
     if (zAmapView == null)
         zAmapView = new ZMapView(this);
     zAmapView
@@ -237,43 +248,43 @@ public void onPoiSearch(View view) {
 #### 其他方法
 ```
 // 设置中心位置
-public void onDefaultPoint(View view) {
+public void onDefaultPoint() {
     zAmapView.setCenterPoint(new LatLonPoint(31.238068, 121.501654), 10);
 }
 
 // 添加Marker
-public void onAddMarker(View view) {
+public void onAddMarker() {
     zAmapView.addLatLngMarker(mStartPoint, R.drawable.start);
 }
 
 // 添加动态Marker
-public void onAddAnimMarker(View view) {
+public void onAddAnimMarker() {
     zAmapView.setOpenMarkerAnim(true)
             .addLatLngMarker(mEndPoint, R.drawable.end);
 }
 
 // 添加其实Marker
-public void onMarker(View view) {
+public void onMarker() {
     zAmapView.setFromandtoMarker(mStartPoint, mEndPoint, R.drawable.start, R.drawable.end);
 }
 
 // 缩放按钮不可见
-public void onScaleVisible(View view) {
+public void onScaleVisible() {
     zAmapView.zoomControlViewVisible(false);
 }
 
 // 缩放比例
-public void onScale(View view) {
+public void onScale() {
     zAmapView.setZoom(11);
 }
 
 // 限制地图范围
-public void setMapLimits(View view) {
+public void setMapLimits() {
     zAmapView.setMapLimits(mStartPoint, mEndPoint);
 }
 
 // 其他方法...
-public void onElse(View view) {
+public void onElse() {
     zAmapView.setCurrentCity(mStartPoint, 11)
             .setShowMapText(true)
             .setShowBuildings(true);
@@ -331,4 +342,44 @@ public void calculateRouteDistance() {
     }).calculateRouteDistance(mStartPoint, mEndPoint);
 }
 
+```
+
+### 逆向地址查询
+```
+// 逆向地址查询
+public void getAddressByLatLonPoint() {
+    if (zAmapView == null)
+        zAmapView = new ZMapView(this);
+    zAmapView.getAddressByLatLonPoint(mStartPoint, new ZGeocodeSearchListener() {
+            @Override
+            public void onGeocodeSearchStart() {
+                
+            }
+
+            @Override
+            public void onGeocodeSearchComplete() {
+
+            }
+
+            @Override
+            public void onGeocodeSearchFail(String message) {
+
+            }
+
+            @Override
+            public void onGeocodeSearchError(Throwable e) {
+
+            }
+
+            @Override
+            public void onRegeocodeSearched(RegeocodeResult regeocodeResult, String address) {
+
+            }
+
+            @Override
+            public void onGeocodeSearched(GeocodeResult geocodeResult, List<GeocodeAddress> geocodeAddressList, ArrayList<String> addressList) {
+
+            }
+        });
+}
 ```
