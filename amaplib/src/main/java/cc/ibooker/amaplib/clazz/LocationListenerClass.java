@@ -8,6 +8,7 @@ import cc.ibooker.amaplib.listeners.ZLocationListener;
  *
  * @author 邹峰立
  */
+@Deprecated
 public class LocationListenerClass implements ZLocationListener {
     @Override
     public void onLocationStart() {

@@ -12,6 +12,7 @@ import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
  *
  * @author 邹峰立
  */
+@Deprecated
 public class PoiSearchListenerClass implements ZPoiSearchListener {
     @Override
     public void onPoiSearchStart() {

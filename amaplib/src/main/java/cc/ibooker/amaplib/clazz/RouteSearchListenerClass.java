@@ -14,6 +14,7 @@ import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
  *
  * @author 邹峰立
  */
+@Deprecated
 public class RouteSearchListenerClass implements ZRouteSearchListener {
     @Override
     public void onRouteSearchStart() {
