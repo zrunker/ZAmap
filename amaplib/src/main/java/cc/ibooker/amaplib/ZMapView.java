@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -38,6 +39,12 @@ import com.amap.api.services.core.AMapException;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.core.SuggestionCity;
+import com.amap.api.services.geocoder.GeocodeAddress;
+import com.amap.api.services.geocoder.GeocodeResult;
+import com.amap.api.services.geocoder.GeocodeSearch;
+import com.amap.api.services.geocoder.RegeocodeAddress;
+import com.amap.api.services.geocoder.RegeocodeQuery;
+import com.amap.api.services.geocoder.RegeocodeResult;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.amap.api.services.route.BusPath;
@@ -61,6 +68,7 @@ import java.util.List;
 
 import cc.ibooker.amaplib.dto.LocationData;
 import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
+import cc.ibooker.amaplib.listeners.ZGeocodeSearchListener;
 import cc.ibooker.amaplib.listeners.ZLocationListener;
 import cc.ibooker.amaplib.listeners.ZMapLoadedListener;
 import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
@@ -77,6 +85,10 @@ import cc.ibooker.amaplib.util.AMapUtil;
  * 自定义地图
  * 功能一：显示地图
  * 功能二：路线规划
+ * 功能三：POI搜索
+ * 功能四：距离搜索-计算
+ * 功能五：逆向地址查询
+ * 功能六：定位
  * https://lbs.amap.com/dev/demo/ride-route-plan#Android
  *
  * @author 邹峰立
@@ -86,7 +98,8 @@ public class ZMapView extends MapView implements
         RouteSearch.OnRouteSearchListener,
         AMap.OnMapLoadedListener,
         PoiSearch.OnPoiSearchListener,
-        AMapLocationListener {
+        AMapLocationListener,
+        GeocodeSearch.OnGeocodeSearchListener {
     // SDK在Android 6.0下需要进行运行检测的权限如下：
     private String[] permissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -116,6 +129,16 @@ public class ZMapView extends MapView implements
     private PoiSearch.Query mPoiQuery;// Poi查询条件类
     private PoiSearch mPoiSearch;// POI搜索
     private int poiSearchCurrentPage = 0;
+
+    // 逆向地址查询
+    private GeocodeSearch mGeocodeSearch;
+
+    // 逆向地址查询监听
+    private ZGeocodeSearchListener zGeocodeSearchListener;
+
+    public void setGeocodeSearchListener(ZGeocodeSearchListener geocodeSearchListener) {
+        this.zGeocodeSearchListener = geocodeSearchListener;
+    }
 
     // 定位
     private AMapLocationClient mLocationClient;
@@ -216,6 +239,8 @@ public class ZMapView extends MapView implements
             mLocationOption = null;
         if (mLocationMarker != null)
             mLocationMarker.destroy();
+        if (mGeocodeSearch != null)
+            mGeocodeSearch = null;
     }
 
     public void pause() {
@@ -407,7 +432,7 @@ public class ZMapView extends MapView implements
      *
      * @param currentCityName 当前城市名称或编号，默认北京
      */
-    public ZMapView setCurrentCityName(String currentCityName) {
+    public ZMapView setCurrentCityName(@NonNull String currentCityName) {
         this.mCurrentCityName = currentCityName;
         return this;
     }
@@ -432,7 +457,7 @@ public class ZMapView extends MapView implements
      * @param latLng 当前城市位置
      * @param zoom   缩放比例 1-19 默认15
      */
-    public ZMapView setCurrentCity(LatLng latLng, int zoom) {
+    public ZMapView setCurrentCity(@NonNull LatLng latLng, int zoom) {
         if (zoom <= 0)
             zoom = 15;
         getAMap().moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -445,7 +470,7 @@ public class ZMapView extends MapView implements
      * @param latLonPoint 当前城市位置
      * @param zoom        缩放比例 1-19 默认15
      */
-    public ZMapView setCurrentCity(LatLonPoint latLonPoint, int zoom) {
+    public ZMapView setCurrentCity(@NonNull LatLonPoint latLonPoint, int zoom) {
         if (zoom <= 0)
             zoom = 15;
         getAMap().moveCamera(CameraUpdateFactory.newLatLngZoom(AMapUtil.convertToLatLng(latLonPoint), zoom));
@@ -491,7 +516,7 @@ public class ZMapView extends MapView implements
      *
      * @param defaultPoint 默认点
      */
-    public ZMapView setDefaultPoint(LatLonPoint defaultPoint) {
+    public ZMapView setDefaultPoint(@NonNull LatLonPoint defaultPoint) {
         return setDefaultPoint(defaultPoint, 0);
     }
 
@@ -536,7 +561,7 @@ public class ZMapView extends MapView implements
      * @param startLatLng 起点
      * @param endLatLng   终点
      */
-    public ZMapView setCenterPoint(LatLng startLatLng, LatLng endLatLng) {
+    public ZMapView setCenterPoint(@NonNull LatLng startLatLng, @NonNull LatLng endLatLng) {
         double centerX = (startLatLng.latitude + endLatLng.latitude) / 2;
         double centerY = (startLatLng.longitude + endLatLng.longitude) / 2;
         setCenterPoint(new LatLonPoint(centerX, centerY));
@@ -548,7 +573,7 @@ public class ZMapView extends MapView implements
      *
      * @param centerPoint 中心点
      */
-    public ZMapView setCenterPoint(LatLonPoint centerPoint) {
+    public ZMapView setCenterPoint(@NonNull LatLonPoint centerPoint) {
         return setCenterPoint(centerPoint, 0);
     }
 
@@ -727,8 +752,8 @@ public class ZMapView extends MapView implements
      *
      * @param poiItems 待添加数据
      */
-    public ZMapView addPoiItems(List<PoiItem> poiItems) {
-        if (poiItems != null && poiItems.size() > 0) {
+    public ZMapView addPoiItems(@NonNull List<PoiItem> poiItems) {
+        if (poiItems.size() > 0) {
             getAMap().clear();// 清理之前的图标
             if (mPoiOverlay == null)
                 mPoiOverlay = new ViewPoiOverlay(getContext(), getAMap(), poiItems);
@@ -744,11 +769,9 @@ public class ZMapView extends MapView implements
      *
      * @param poiOverlay 待设置对象
      */
-    public ZMapView setPoiOverlay(PoiOverlay poiOverlay) {
-        if (poiOverlay != null) {
-            this.mPoiOverlay = poiOverlay;
-            poiOverlay.setAMap(getAMap());
-        }
+    public ZMapView setPoiOverlay(@NonNull PoiOverlay poiOverlay) {
+        this.mPoiOverlay = poiOverlay;
+        poiOverlay.setAMap(getAMap());
         return this;
     }
 
@@ -773,28 +796,48 @@ public class ZMapView extends MapView implements
      * 启动定位
      *
      * @param aMapLocationMode Battery_Saving为低功耗模式，Device_Sensors是仅设备模式，Hight_Accuracy高精准
+     * @param locationListener 定位监听
      */
-    public ZMapView startLocation(AMapLocationClientOption.AMapLocationMode aMapLocationMode) {
-        if (aMapLocationMode != null) {
-            if (mSensorHelper == null) {
-                mSensorHelper = new SensorEventHelper(getContext());
-                mSensorHelper.registerSensorListener();
-            }
-            // 初始化定位
-            mLocationClient = getLocationClient();
-            // 初始化定位参数
-            mLocationOption = getLocationOption();
-            // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-            mLocationOption.setLocationMode(aMapLocationMode);
-            // 给定位客户端对象设置定位参数
-            mLocationClient.setLocationOption(mLocationOption);
-            // 启动定位
-            mLocationClient.startLocation();
-            // 定位监听
-            if (zLocationListener != null)
-                zLocationListener.onLocationStart();
+    public ZMapView startLocation(@NonNull AMapLocationClientOption.AMapLocationMode aMapLocationMode,
+                                  @NonNull ZLocationListener locationListener) {
+        this.zLocationListener = locationListener;
+        return startLocation(aMapLocationMode);
+    }
+
+    /**
+     * 启动定位
+     *
+     * @param aMapLocationMode Battery_Saving为低功耗模式，Device_Sensors是仅设备模式，Hight_Accuracy高精准
+     */
+    public ZMapView startLocation(@NonNull AMapLocationClientOption.AMapLocationMode aMapLocationMode) {
+        if (mSensorHelper == null) {
+            mSensorHelper = new SensorEventHelper(getContext());
+            mSensorHelper.registerSensorListener();
         }
+        // 初始化定位
+        mLocationClient = getLocationClient();
+        // 初始化定位参数
+        mLocationOption = getLocationOption();
+        // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+        mLocationOption.setLocationMode(aMapLocationMode);
+        // 给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+        // 启动定位
+        mLocationClient.startLocation();
+        // 定位监听
+        if (zLocationListener != null)
+            zLocationListener.onLocationStart();
         return this;
+    }
+
+    /**
+     * 启动定位
+     *
+     * @param locationListener 定位监听
+     */
+    public ZMapView startLocation(@NonNull ZLocationListener locationListener) {
+        this.zLocationListener = locationListener;
+        return startLocation();
     }
 
     /**
@@ -807,9 +850,21 @@ public class ZMapView extends MapView implements
     /**
      * 分页开始进行poi搜索 - 下一页
      *
+     * @param keywords          关键字
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPageNext(@NonNull String keywords,
+                                        @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPageNext(keywords);
+    }
+
+    /**
+     * 分页开始进行poi搜索 - 下一页
+     *
      * @param keywords 关键字
      */
-    public ZMapView poiSearchByPageNext(String keywords) {
+    public ZMapView poiSearchByPageNext(@NonNull String keywords) {
         poiSearchCurrentPage++;
         return poiSearch(keywords, "", 10);
     }
@@ -817,19 +872,43 @@ public class ZMapView extends MapView implements
     /**
      * 分页开始进行poi搜索
      *
+     * @param keywords          关键字
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPage(@NonNull String keywords, @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPage(keywords);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
      * @param keywords 关键字
      */
-    public ZMapView poiSearchByPage(String keywords) {
+    public ZMapView poiSearchByPage(@NonNull String keywords) {
         return poiSearch(keywords, "", 10);
     }
 
     /**
      * 分页开始进行poi搜索
      *
+     * @param keywords          关键字
+     * @param type              poi搜索类型
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPageNext(@NonNull String keywords, @NonNull String type,
+                                        @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPageNext(keywords, type);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
      * @param keywords 关键字
      * @param type     poi搜索类型
      */
-    public ZMapView poiSearchByPageNext(String keywords, String type) {
+    public ZMapView poiSearchByPageNext(@NonNull String keywords, @NonNull String type) {
         poiSearchCurrentPage++;
         return poiSearch(keywords, type, 10);
     }
@@ -837,11 +916,37 @@ public class ZMapView extends MapView implements
     /**
      * 分页开始进行poi搜索
      *
+     * @param keywords          关键字
+     * @param type              poi搜索类型
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPage(@NonNull String keywords, @NonNull String type,
+                                    @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPage(keywords, type);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
      * @param keywords 关键字
      * @param type     poi搜索类型
      */
-    public ZMapView poiSearchByPage(String keywords, String type) {
+    public ZMapView poiSearchByPage(@NonNull String keywords, @NonNull String type) {
         return poiSearch(keywords, type, 10);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
+     * @param keywords          关键字
+     * @param pageSize          每页显示条数
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPageNext(@NonNull String keywords, int pageSize,
+                                        @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPageNext(keywords, pageSize);
     }
 
     /**
@@ -850,7 +955,7 @@ public class ZMapView extends MapView implements
      * @param keywords 关键字
      * @param pageSize 每页显示条数
      */
-    public ZMapView poiSearchByPageNext(String keywords, int pageSize) {
+    public ZMapView poiSearchByPageNext(@NonNull String keywords, int pageSize) {
         poiSearchCurrentPage++;
         return poiSearch(keywords, "", pageSize);
     }
@@ -858,11 +963,38 @@ public class ZMapView extends MapView implements
     /**
      * 分页开始进行poi搜索
      *
+     * @param keywords          关键字
+     * @param pageSize          每页显示条数
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearchByPage(@NonNull String keywords, int pageSize,
+                                    @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearchByPage(keywords, pageSize);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
      * @param keywords 关键字
      * @param pageSize 每页显示条数
      */
-    public ZMapView poiSearchByPage(String keywords, int pageSize) {
+    public ZMapView poiSearchByPage(@NonNull String keywords, int pageSize) {
         return poiSearch(keywords, "", pageSize);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
+     * @param keywords          关键字
+     * @param type              poi搜索类型
+     * @param pageSize          每页显示条数
+     * @param poiSearchListener POI搜索监听
+     */
+    public ZMapView poiSearch(String keywords, @NonNull String type, int pageSize,
+                              @NonNull ZPoiSearchListener poiSearchListener) {
+        this.zPoiSearchListener = poiSearchListener;
+        return poiSearch(keywords, type, pageSize);
     }
 
     /**
@@ -872,7 +1004,7 @@ public class ZMapView extends MapView implements
      * @param type     poi搜索类型
      * @param pageSize 每页显示条数
      */
-    public ZMapView poiSearch(String keywords, String type, int pageSize) {
+    public ZMapView poiSearch(String keywords, @NonNull String type, int pageSize) {
         if (TextUtils.isEmpty(keywords)) {
             if (zPoiSearchListener != null)
                 zPoiSearchListener.onPoiSearchFail("关键词未输入！");
@@ -901,12 +1033,44 @@ public class ZMapView extends MapView implements
     /**
      * 开始搜索路径规划方案
      *
+     * @param startPoint          起点坐标
+     * @param endPoint            终点坐标
+     * @param startIcon           起点图
+     * @param endIcon             终点图
+     * @param routeSearchListener 路线规划监听
+     */
+    public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
+                                      int startIcon, int endIcon,
+                                      @NonNull ZRouteSearchListener routeSearchListener) {
+        this.zRouteSearchListener = routeSearchListener;
+        return searchRouteResult(startPoint, endPoint, startIcon, endIcon);
+    }
+
+    /**
+     * 开始搜索路径规划方案
+     *
      * @param startPoint 起点坐标
      * @param endPoint   终点坐标
+     * @param startIcon  起点图
+     * @param endIcon    终点图
      */
-    public ZMapView searchRouteResult(LatLonPoint startPoint, LatLonPoint endPoint, int startIcon, int endIcon) {
+    public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
+                                      int startIcon, int endIcon) {
         mSearchRouteStartIcon = startIcon;
         mSearchRouteEndIcon = endIcon;
+        return searchRouteResult(startPoint, endPoint);
+    }
+
+    /**
+     * 开始搜索路径规划方案
+     *
+     * @param startPoint          起点坐标
+     * @param endPoint            终点坐标
+     * @param routeSearchListener 路线规划监听
+     */
+    public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
+                                      @NonNull ZRouteSearchListener routeSearchListener) {
+        this.zRouteSearchListener = routeSearchListener;
         return searchRouteResult(startPoint, endPoint);
     }
 
@@ -1147,6 +1311,8 @@ public class ZMapView extends MapView implements
             zMapLoadedListener.onMapError(e);
         if (zDistanceSearchListener != null)
             zDistanceSearchListener.onDistanceSearchError(e);
+        if (zGeocodeSearchListener != null)
+            zGeocodeSearchListener.onGeocodeSearchError(e);
     }
 
     // Map加载完成
@@ -1169,17 +1335,15 @@ public class ZMapView extends MapView implements
                     List<SuggestionCity> suggestionCities = poiResult.getSearchSuggestionCitys();// 当搜索不到poiitem数据时，会返回含有搜索关键字的城市信息
                     if (zPoiSearchListener != null)
                         zPoiSearchListener.onPoiSearchNext(poiItems, suggestionCities);
-                    else {
-                        if (poiItems != null && poiItems.size() > 0) {
-                            getAMap().clear();// 清理之前的图标
-                            PoiOverlay poiOverlay = new PoiOverlay(getAMap(), poiItems);
-                            poiOverlay.removeFromMap();
-                            poiOverlay.addToMap();
-                            poiOverlay.zoomToSpan();
-                        } else {
-                            if (zPoiSearchListener != null)
-                                zPoiSearchListener.onPoiSearchFail("未查询到任何数据");
-                        }
+                    if (poiItems != null && poiItems.size() > 0) {
+                        getAMap().clear();// 清理之前的图标
+                        PoiOverlay poiOverlay = new PoiOverlay(getAMap(), poiItems);
+                        poiOverlay.removeFromMap();
+                        poiOverlay.addToMap();
+                        poiOverlay.zoomToSpan();
+                    } else {
+                        if (zPoiSearchListener != null)
+                            zPoiSearchListener.onPoiSearchFail("未查询到任何数据");
                     }
 //                    if (zPoiSearchListener != null)
 //                        zPoiSearchListener.onPoiSearchSuccess();
@@ -1265,7 +1429,7 @@ public class ZMapView extends MapView implements
      * @param latlng 位置
      * @param radius 半径
      */
-    private void addLatLngCircle(LatLng latlng, double radius) {
+    private void addLatLngCircle(@NonNull LatLng latlng, double radius) {
         CircleOptions options = new CircleOptions();
         options.strokeWidth(1f)
                 .fillColor(FILL_COLOR)
@@ -1280,7 +1444,7 @@ public class ZMapView extends MapView implements
      *
      * @param latlng 位置信息
      */
-    private void addLatLngMarker(LatLng latlng) {
+    private void addLatLngMarker(@NonNull LatLng latlng) {
         if (mLocationMarker != null)
             return;
         MarkerOptions options = new MarkerOptions();
@@ -1312,12 +1476,39 @@ public class ZMapView extends MapView implements
     /**
      * 计算两点距离
      *
+     * @param startPoint             起点坐标
+     * @param endPoint               终点坐标
+     * @param distanceSearchListener 距离搜索监听
+     */
+    public ZMapView calculateRouteDistance(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
+                                           @NonNull ZDistanceSearchListener distanceSearchListener) {
+        this.zDistanceSearchListener = distanceSearchListener;
+        return calculateRouteDistance(startPoint, endPoint);
+    }
+
+    /**
+     * 计算两点距离
+     *
      * @param startPoint 起点坐标
      * @param endPoint   终点坐标
      */
-    public ZMapView calculateRouteDistance(LatLonPoint startPoint, LatLonPoint endPoint) {
+    public ZMapView calculateRouteDistance(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint) {
         ArrayList<LatLonPoint> startPoints = new ArrayList<>();
         startPoints.add(startPoint);
+        return calculateRouteDistance(startPoints, endPoint);
+    }
+
+    /**
+     * 计算两点距离
+     *
+     * @param startPoints            起点坐标集合
+     * @param endPoint               终点坐标
+     * @param distanceSearchListener 距离搜索监听
+     */
+    public ZMapView calculateRouteDistance(@NonNull ArrayList<LatLonPoint> startPoints,
+                                           @NonNull LatLonPoint endPoint,
+                                           @NonNull ZDistanceSearchListener distanceSearchListener) {
+        this.zDistanceSearchListener = distanceSearchListener;
         return calculateRouteDistance(startPoints, endPoint);
     }
 
@@ -1327,7 +1518,8 @@ public class ZMapView extends MapView implements
      * @param startPoints 起点坐标集合
      * @param endPoint    终点坐标
      */
-    public ZMapView calculateRouteDistance(ArrayList<LatLonPoint> startPoints, LatLonPoint endPoint) {
+    public ZMapView calculateRouteDistance(@NonNull ArrayList<LatLonPoint> startPoints,
+                                           @NonNull LatLonPoint endPoint) {
         if (zDistanceSearchListener != null)
             zDistanceSearchListener.onDistanceSearchStart();
         if (distanceSearch == null)
@@ -1374,4 +1566,114 @@ public class ZMapView extends MapView implements
         return new LatLonPoint(pointy, pointx);
     }
 
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param pointx 经度
+     * @param pointy 纬度
+     */
+    public ZMapView getAddressByLatLonPoint(double pointx, double pointy) {
+        return getAddressByLatLonPoint(pointx, pointy, zGeocodeSearchListener);
+    }
+
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param pointx                经度
+     * @param pointy                纬度
+     * @param geocodeSearchListener 查询监听
+     */
+    public ZMapView getAddressByLatLonPoint(double pointx, double pointy,
+                                            @NonNull ZGeocodeSearchListener geocodeSearchListener) {
+        return getAddressByLatLonPoint(convertToLatLonPoint(pointx, pointy), geocodeSearchListener);
+    }
+
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param latLonPoint 坐标点
+     */
+    public ZMapView getAddressByLatLonPoint(@NonNull LatLonPoint latLonPoint) {
+        return getAddressByLatLonPoint(latLonPoint, zGeocodeSearchListener);
+    }
+
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param latLonPoint           坐标点
+     * @param geocodeSearchListener 查询监听
+     */
+    public ZMapView getAddressByLatLonPoint(@NonNull LatLonPoint latLonPoint,
+                                            @NonNull ZGeocodeSearchListener geocodeSearchListener) {
+        return getAddressByLatLonPoint(latLonPoint, 500f, GeocodeSearch.AMAP, geocodeSearchListener);
+    }
+
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param latLonPoint 坐标点
+     * @param range       查询范围- m（米）
+     * @param type        坐标类型
+     */
+    public ZMapView getAddressByLatLonPoint(@NonNull LatLonPoint latLonPoint, float range, @NonNull String type) {
+        return getAddressByLatLonPoint(latLonPoint, range, type, zGeocodeSearchListener);
+    }
+
+    /**
+     * 根据经纬度获取详情地址信息
+     *
+     * @param latLonPoint           坐标点
+     * @param range                 查询范围- m（米）
+     * @param type                  坐标类型
+     * @param geocodeSearchListener 查询监听
+     */
+    public ZMapView getAddressByLatLonPoint(@NonNull LatLonPoint latLonPoint, float range, @NonNull String type,
+                                            @NonNull ZGeocodeSearchListener geocodeSearchListener) {
+        this.zGeocodeSearchListener = geocodeSearchListener;
+        zGeocodeSearchListener.onGeocodeSearchStart();
+        RegeocodeQuery query = new RegeocodeQuery(latLonPoint, range, type);
+        if (mGeocodeSearch == null) {
+            mGeocodeSearch = new GeocodeSearch(getContext());
+            mGeocodeSearch.setOnGeocodeSearchListener(this);
+        }
+        // 异步查询
+        mGeocodeSearch.getFromLocationAsyn(query);
+        return this;
+    }
+
+    // 得到逆向地址异步查询结果
+    @Override
+    public void onRegeocodeSearched(RegeocodeResult regeocodeResult, int i) {
+        if (regeocodeResult == null) {
+            if (zGeocodeSearchListener != null)
+                zGeocodeSearchListener.onGeocodeSearchFail("逆向地址查询失败！" + i);
+        } else {
+            RegeocodeAddress regeocodeAddress = regeocodeResult.getRegeocodeAddress();
+            String address = regeocodeAddress.getFormatAddress();
+            if (zGeocodeSearchListener != null) {
+                zGeocodeSearchListener.onRegeocodeSearched(regeocodeResult, address);
+                zGeocodeSearchListener.onGeocodeSearchComplete();
+            }
+        }
+    }
+
+    // 得到逆向地址查询结果
+    @Override
+    public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
+        if (geocodeResult == null) {
+            if (zGeocodeSearchListener != null)
+                zGeocodeSearchListener.onGeocodeSearchFail("逆向地址查询失败！" + i);
+        } else {
+            List<GeocodeAddress> geocodeAddressList = geocodeResult.getGeocodeAddressList();
+            ArrayList<String> addressList = new ArrayList<>();
+            for (GeocodeAddress geocodeAddress : geocodeAddressList) {
+                String address = geocodeAddress.getFormatAddress();
+                addressList.add(address);
+            }
+            if (zGeocodeSearchListener != null) {
+                zGeocodeSearchListener.onGeocodeSearched(geocodeResult, geocodeAddressList, addressList);
+                zGeocodeSearchListener.onGeocodeSearchComplete();
+            }
+        }
+    }
 }
