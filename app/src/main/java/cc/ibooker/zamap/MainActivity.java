@@ -1,5 +1,6 @@
 package cc.ibooker.zamap;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         // 显示地图
         zAmapView.onCreate(savedInstanceState);
 
+        // 显示导航
+        Intent intent = new Intent(this, NavActivity.class);
+        startActivity(intent);
     }
 
     @Override
