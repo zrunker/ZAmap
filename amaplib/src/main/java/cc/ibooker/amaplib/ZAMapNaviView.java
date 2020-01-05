@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import com.amap.api.maps.AMap;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
 import com.amap.api.navi.AMapNaviView;
@@ -74,7 +75,7 @@ public class ZAMapNaviView extends AMapNaviView
         this.aMapNavi = AMapNavi.getInstance(context.getApplicationContext());
         this.aMapNavi.addAMapNaviListener(this);
 
-        AMapNaviViewOptions options = getViewOptions();
+//        AMapNaviViewOptions options = getViewOptions();
         // 关闭高德提供的导航图层
 
 //        options.setLayoutVisible(false);
@@ -82,6 +83,11 @@ public class ZAMapNaviView extends AMapNaviView
         // 关闭高德提供的导航路线绘制
 //        options.setAutoDrawRoute(false);
 //        setViewOptions(options);
+    }
+
+    @Override
+    public AMap getMap() {
+        return super.getMap();
     }
 
     /**
