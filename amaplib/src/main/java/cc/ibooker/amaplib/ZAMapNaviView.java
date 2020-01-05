@@ -389,26 +389,26 @@ public class ZAMapNaviView extends AMapNaviView
         if (ints != null && ints.length > 0) {
             // 对于多路径需要告诉 AMapNavi 选择的是哪条路，然后才能进行导航
             aMapNavi.selectRouteId(ints[0]);
-
-            //        如果根据获取的导航路线来自定义绘制
-            RouteOverLay routeOverlay = new RouteOverLay(getMap(), aMapNavi.getNaviPath(), context);
-            routeOverlay.setStartPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.r1));
-            routeOverlay.setEndPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b1));
-            routeOverlay.setWayPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b2));
-            routeOverlay.setTrafficLine(false);
-            try {
-                routeOverlay.setWidth(30);
-            } catch (Throwable e) {
-                //宽度须>0
-                e.printStackTrace();
-            }
-            int[] color = new int[10];
-            color[0] = Color.BLACK;
-            color[1] = Color.RED;
-            color[2] = Color.BLUE;
-            color[3] = Color.YELLOW;
-            color[4] = Color.GRAY;
-            routeOverlay.addToMap(color, aMapNavi.getNaviPath().getWayPointIndex());
+//
+//            //        如果根据获取的导航路线来自定义绘制
+//            RouteOverLay routeOverlay = new RouteOverLay(getMap(), aMapNavi.getNaviPath(), context);
+//            routeOverlay.setStartPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.r1));
+//            routeOverlay.setEndPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b1));
+//            routeOverlay.setWayPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b2));
+//            routeOverlay.setTrafficLine(false);
+//            try {
+//                routeOverlay.setWidth(30);
+//            } catch (Throwable e) {
+//                //宽度须>0
+//                e.printStackTrace();
+//            }
+//            int[] color = new int[10];
+//            color[0] = Color.BLACK;
+//            color[1] = Color.RED;
+//            color[2] = Color.BLUE;
+//            color[3] = Color.YELLOW;
+//            color[4] = Color.GRAY;
+//            routeOverlay.addToMap(color, aMapNavi.getNaviPath().getWayPointIndex());
 //        routeOverlay.addToMap();
 
 //            aMapNavi.startNavi(AMapNavi.GPSNaviMode);
