@@ -126,6 +126,15 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
+     * 清空途经点
+     */
+    public ZAMapNaviView clearWayPointList() {
+        if (mWayPointList != null)
+            mWayPointList.clear();
+        return this;
+    }
+
+    /**
      * 设置起始点集合
      *
      * @param sList 待设置值
@@ -150,6 +159,15 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
+     * 清空起始点
+     */
+    public ZAMapNaviView clearSList() {
+        if (sList != null)
+            sList.clear();
+        return this;
+    }
+
+    /**
      * 设置终点集合
      *
      * @param eList 待设置值
@@ -170,6 +188,15 @@ public class ZAMapNaviView extends AMapNaviView
                 eList = new ArrayList<>();
             eList.add(latLng);
         }
+        return this;
+    }
+
+    /**
+     * 清空终止点
+     */
+    public ZAMapNaviView clearEList() {
+        if (eList != null)
+            eList.clear();
         return this;
     }
 
