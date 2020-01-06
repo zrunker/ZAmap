@@ -1,12 +1,9 @@
 package cc.ibooker.amaplib;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
 
-import com.amap.api.maps.AMap;
 import com.amap.api.navi.AMapNavi;
 import com.amap.api.navi.AMapNaviListener;
 import com.amap.api.navi.AMapNaviView;
@@ -27,7 +24,6 @@ import com.amap.api.navi.model.AimLessModeCongestionInfo;
 import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
-import com.amap.api.navi.view.RouteOverLay;
 import com.autonavi.tbt.TrafficFacilityInfo;
 
 import java.util.ArrayList;
@@ -40,7 +36,7 @@ import java.util.ArrayList;
 public class ZAMapNaviView extends AMapNaviView
         implements AMapNaviViewListener,
         AMapNaviListener {
-    private Context context;
+    private AMapNaviViewOptions options;
     private AMapNavi aMapNavi;// 导航规划计算类
     private ArrayList<NaviLatLng> mWayPointList;// 途经点坐标
     private ArrayList<NaviLatLng> sList;// 起始点集
@@ -70,24 +66,36 @@ public class ZAMapNaviView extends AMapNaviView
 
     // 初始化
     private void init(Context context) {
-        this.context = context;
+        this.options = getViewOptions();
         this.setAMapNaviViewListener(this);
         this.aMapNavi = AMapNavi.getInstance(context.getApplicationContext());
         this.aMapNavi.addAMapNaviListener(this);
-
-//        AMapNaviViewOptions options = getViewOptions();
-        // 关闭高德提供的导航图层
-
-//        options.setLayoutVisible(false);
-
-        // 关闭高德提供的导航路线绘制
-//        options.setAutoDrawRoute(false);
-//        setViewOptions(options);
     }
 
-    @Override
-    public AMap getMap() {
-        return super.getMap();
+    /**
+     * 开启或关闭高德提供的导航图层
+     *
+     * @param isVisible 开启或关闭
+     */
+    public ZAMapNaviView setLayoutVisible(boolean isVisible) {
+        if (options != null) {
+            options.setLayoutVisible(isVisible);
+            setViewOptions(options);
+        }
+        return this;
+    }
+
+    /**
+     * 是否高德提供的导航路线绘制
+     *
+     * @param bool 自动绘制
+     */
+    public ZAMapNaviView setAutoDrawRoute(boolean bool) {
+        if (options != null) {
+            options.setAutoDrawRoute(bool);
+            setViewOptions(options);
+        }
+        return this;
     }
 
     /**
