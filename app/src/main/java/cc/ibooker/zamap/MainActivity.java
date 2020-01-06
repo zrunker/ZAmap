@@ -82,18 +82,18 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 
     // 添加Marker
     public void onAddMarker(View view) {
-        zAmapView.addLatLngMarker(mStartPoint, R.drawable.start);
+        zAmapView.addLatLngMarker(mStartPoint, R.drawable.amap_start);
     }
 
     // 添加动态Marker
     public void onAddAnimMarker(View view) {
         zAmapView.setOpenMarkerAnim(true)
-                .addLatLngMarker(mEndPoint, R.drawable.end);
+                .addLatLngMarker(mEndPoint, R.drawable.amap_end);
     }
 
     // 添加其实Marker
     public void onMarker(View view) {
-        zAmapView.setFromandtoMarker(mStartPoint, mEndPoint, R.drawable.start, R.drawable.end);
+        zAmapView.setFromandtoMarker(mStartPoint, mEndPoint, R.drawable.amap_start, R.drawable.amap_end);
     }
 
     // 缩放按钮不可见

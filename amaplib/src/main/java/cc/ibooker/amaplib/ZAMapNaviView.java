@@ -715,9 +715,9 @@ public class ZAMapNaviView extends AMapNaviView
                 if (isOpenRouteOverLay) {
                     // 如果根据获取的导航路线来自定义绘制
                     RouteOverLay routeOverlay = new RouteOverLay(getMap(), aMapNavi.getNaviPath(), getContext());
-                    routeOverlay.setStartPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.r1));
-                    routeOverlay.setEndPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b1));
-                    routeOverlay.setWayPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.b2));
+                    routeOverlay.setStartPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.amap_r1));
+                    routeOverlay.setEndPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.amap_b1));
+                    routeOverlay.setWayPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.amap_b2));
                     routeOverlay.setTrafficLine(false);
                     try {
                         routeOverlay.setWidth(30);
