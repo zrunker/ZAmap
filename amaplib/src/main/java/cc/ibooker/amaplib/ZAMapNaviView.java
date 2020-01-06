@@ -70,29 +70,33 @@ public class ZAMapNaviView extends AMapNaviView
     // 导航图加载监听
     private ZAMapNaviViewListener zaMapNaviViewListener;
 
-    public void setZaMapNaviViewListener(ZAMapNaviViewListener zaMapNaviViewListener) {
+    public ZAMapNaviView setZaMapNaviViewListener(ZAMapNaviViewListener zaMapNaviViewListener) {
         this.zaMapNaviViewListener = zaMapNaviViewListener;
+        return this;
     }
 
     // 简化导航图加载监听
     private ZSimpleAMapNaviViewListener zSimpleAMapNaviViewListener;
 
-    public void setzSimpleAMapNaviViewListener(ZSimpleAMapNaviViewListener zSimpleAMapNaviViewListener) {
+    public ZAMapNaviView setzSimpleAMapNaviViewListener(ZSimpleAMapNaviViewListener zSimpleAMapNaviViewListener) {
         this.zSimpleAMapNaviViewListener = zSimpleAMapNaviViewListener;
+        return this;
     }
 
     // 导航监听
     private ZAMapNaviListener zaMapNaviListener;
 
-    public void setZaMapNaviListener(ZAMapNaviListener zaMapNaviListener) {
+    public ZAMapNaviView setZaMapNaviListener(ZAMapNaviListener zaMapNaviListener) {
         this.zaMapNaviListener = zaMapNaviListener;
+        return this;
     }
 
     // 简化导航监听
     private ZSimpleAMapNaviListener zSimpleAMapNaviListener;
 
-    public void setzSimpleAMapNaviListener(ZSimpleAMapNaviListener zSimpleAMapNaviListener) {
+    public ZAMapNaviView setzSimpleAMapNaviListener(ZSimpleAMapNaviListener zSimpleAMapNaviListener) {
         this.zSimpleAMapNaviListener = zSimpleAMapNaviListener;
+        return this;
     }
 
     public ZAMapNaviView(Context context) {
