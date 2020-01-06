@@ -46,6 +46,16 @@ public class ZAMapNaviView extends AMapNaviView
     private ArrayList<NaviLatLng> eList;// 终点集
     // 当前的导航类型
     private int currentNaviType = NaviType.GPS;
+    // 是否开启躲避拥堵
+    private boolean isOpenCongestion = true;
+    // 是否走高速
+    private boolean isAvoidHightSpeed = false;
+    // 是否避免收费
+    private boolean isCost = false;
+    // 是否高速优先
+    private boolean isHightSpeed = false;
+    // 是否多路线
+    private boolean isMultipleroute = false;
 
     public ZAMapNaviView(Context context) {
         super(context);
@@ -211,6 +221,56 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
+     * 是否开启躲避拥堵
+     *
+     * @param openCongestion 参数 默认true
+     */
+    public ZAMapNaviView setOpenCongestion(boolean openCongestion) {
+        isOpenCongestion = openCongestion;
+        return this;
+    }
+
+    /**
+     * 是否走高速
+     *
+     * @param avoidHightSpeed 参数 默认tfalse
+     */
+    public ZAMapNaviView setAvoidHightSpeed(boolean avoidHightSpeed) {
+        isAvoidHightSpeed = avoidHightSpeed;
+        return this;
+    }
+
+    /**
+     * 是否避免收费
+     *
+     * @param cost 参数 默认tfalse
+     */
+    public ZAMapNaviView setCost(boolean cost) {
+        isCost = cost;
+        return this;
+    }
+
+    /**
+     * 设置是否高速优先
+     *
+     * @param hightSpeed 参数，默认false
+     */
+    public ZAMapNaviView setHightSpeed(boolean hightSpeed) {
+        isHightSpeed = hightSpeed;
+        return this;
+    }
+
+    /**
+     * 是否多路线
+     *
+     * @param multipleroute 参数，默认false
+     */
+    public ZAMapNaviView setMultipleroute(boolean multipleroute) {
+        isMultipleroute = multipleroute;
+        return this;
+    }
+
+    /**
      * 开始导航
      */
     public ZAMapNaviView startNavi() {
@@ -317,7 +377,7 @@ public class ZAMapNaviView extends AMapNaviView
          */
         int strategy = 0;
         try {
-            strategy = aMapNavi.strategyConvert(true, false, false, false, false);
+            strategy = aMapNavi.strategyConvert(isOpenCongestion, isAvoidHightSpeed, isCost, isHightSpeed, isMultipleroute);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -361,6 +421,7 @@ public class ZAMapNaviView extends AMapNaviView
 
     }
 
+    // 路线规划失败
     @Override
     public void onCalculateRouteFailure(int i) {
 
