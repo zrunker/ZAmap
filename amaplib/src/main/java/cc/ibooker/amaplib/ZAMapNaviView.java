@@ -1,6 +1,9 @@
 package cc.ibooker.amaplib;
 
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -109,6 +112,20 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
+     * 添加途径点
+     *
+     * @param naviLatLng 途径点
+     */
+    public ZAMapNaviView addWayPoint(NaviLatLng naviLatLng) {
+        if (naviLatLng != null) {
+            if (mWayPointList == null)
+                mWayPointList = new ArrayList<>();
+            mWayPointList.add(naviLatLng);
+        }
+        return this;
+    }
+
+    /**
      * 设置起始点集合
      *
      * @param sList 待设置值
@@ -170,7 +187,13 @@ public class ZAMapNaviView extends AMapNaviView
      * 开始导航
      */
     public ZAMapNaviView startNavi() {
-        aMapNavi.startNavi(currentNaviType);
+        if (currentNaviType == NaviType.GPS)
+            if (aMapNavi.isGpsReady())
+                aMapNavi.startNavi(currentNaviType);
+            else
+                openGPSSetting();
+        else
+            aMapNavi.startNavi(currentNaviType);
         return this;
     }
 
@@ -481,5 +504,24 @@ public class ZAMapNaviView extends AMapNaviView
     @Override
     public void onNaviRouteNotify(AMapNaviRouteNotifyData aMapNaviRouteNotifyData) {
 
+    }
+
+    /**
+     * 检查GPS是否打开
+     */
+    public boolean checkGpsIsOpen() {
+        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    /**
+     * 打开GPS设置
+     */
+    public ZAMapNaviView openGPSSetting() {
+        if (!checkGpsIsOpen()) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            getContext().startActivity(intent);
+        }
+        return this;
     }
 }
