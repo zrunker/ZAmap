@@ -46,6 +46,6 @@ public class NavActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        zaMapNaviView.onDestroy();
+        zaMapNaviView.onZDestroy();
     }
 }

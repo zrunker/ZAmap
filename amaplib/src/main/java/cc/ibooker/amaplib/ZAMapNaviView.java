@@ -127,6 +127,13 @@ public class ZAMapNaviView extends AMapNaviView
         this.aMapNavi.addAMapNaviListener(this);
     }
 
+    // 销毁
+    public void onZDestroy() {
+        super.onDestroy();
+        if (aMapNavi != null)
+            aMapNavi.destroy();
+    }
+
     // 获取导航控件
     public AMapNavi getAMapNavi() {
         return aMapNavi;
@@ -332,9 +339,12 @@ public class ZAMapNaviView extends AMapNaviView
      */
     public ZAMapNaviView startNavi() {
         if (currentNaviType == NaviType.GPS)
-            if (aMapNavi.isGpsReady())
-                aMapNavi.startNavi(currentNaviType);
-            else
+            if (checkGpsIsOpen()) {
+                if (!aMapNavi.isGpsReady())
+                    aMapNavi.startNavi(AMapNavi.GPSNaviMode);
+                else
+                    aMapNavi.startNavi(currentNaviType);
+            } else
                 openGPSSetting();
         else
             aMapNavi.startNavi(currentNaviType);
