@@ -34,13 +34,13 @@ public class NavActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        zaMapNaviView.onResume();
+        zaMapNaviView.onZResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        zaMapNaviView.onPause();
+        zaMapNaviView.onZPause();
     }
 
     @Override

@@ -127,19 +127,19 @@ public class ZAMapNaviView extends AMapNaviView
         this.aMapNavi.addAMapNaviListener(this);
     }
 
-//    // 获取焦点
-//    public void onZResume() {
-//        super.onPause();
+    // 获取焦点
+    public void onZResume() {
+        super.onResume();
 //        if (aMapNavi != null)
 //            aMapNavi.resumeNavi();
-//    }
+    }
 
-//    // 暂停
-//    public void onZPause() {
-//        super.onPause();
+    // 暂停
+    public void onZPause() {
+        super.onPause();
 //        if (aMapNavi != null)
 //            aMapNavi.pauseNavi();
-//    }
+    }
 
     // 销毁
     public void onZDestroy() {
