@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import cc.ibooker.amaplib.listeners.ZAMapNaviListener;
 import cc.ibooker.amaplib.listeners.ZAMapNaviViewListener;
 import cc.ibooker.amaplib.listeners.ZSimpleAMapNaviListener;
+import cc.ibooker.amaplib.listeners.ZSimpleAMapNaviViewListener;
 
 /**
  * 自定义导航
@@ -73,6 +74,13 @@ public class ZAMapNaviView extends AMapNaviView
         this.zaMapNaviViewListener = zaMapNaviViewListener;
     }
 
+    // 简化导航图加载监听
+    private ZSimpleAMapNaviViewListener zSimpleAMapNaviViewListener;
+
+    public void setzSimpleAMapNaviViewListener(ZSimpleAMapNaviViewListener zSimpleAMapNaviViewListener) {
+        this.zSimpleAMapNaviViewListener = zSimpleAMapNaviViewListener;
+    }
+
     // 导航监听
     private ZAMapNaviListener zaMapNaviListener;
 
@@ -80,7 +88,7 @@ public class ZAMapNaviView extends AMapNaviView
         this.zaMapNaviListener = zaMapNaviListener;
     }
 
-    // 导航监听
+    // 简化导航监听
     private ZSimpleAMapNaviListener zSimpleAMapNaviListener;
 
     public void setzSimpleAMapNaviListener(ZSimpleAMapNaviListener zSimpleAMapNaviListener) {
@@ -341,6 +349,8 @@ public class ZAMapNaviView extends AMapNaviView
     public void onNaviCancel() {
         if (zaMapNaviViewListener != null)
             zaMapNaviViewListener.onNaviCancel();
+        if (zSimpleAMapNaviViewListener != null)
+            zSimpleAMapNaviViewListener.onNaviCancel();
     }
 
     // 退出导航监听
@@ -348,8 +358,9 @@ public class ZAMapNaviView extends AMapNaviView
     public boolean onNaviBackClick() {
         if (zaMapNaviViewListener != null)
             return zaMapNaviViewListener.onNaviBackClick();
-        else
-            return false;
+        if (zSimpleAMapNaviViewListener != null)
+            return zSimpleAMapNaviViewListener.onNaviBackClick();
+        return false;
     }
 
     // 导航地图模式
