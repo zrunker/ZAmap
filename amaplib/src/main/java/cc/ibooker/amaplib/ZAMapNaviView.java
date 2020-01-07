@@ -173,7 +173,7 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
-     * 设置路线规划类型
+     * 设置路线规划类型，如果设置货车模式，要设置车辆信息
      *
      * @param calculateRouteType 0-驾车，1-货车，2-步行，3-骑行
      */
