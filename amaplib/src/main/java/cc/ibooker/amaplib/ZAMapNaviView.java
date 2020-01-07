@@ -15,6 +15,7 @@ import com.amap.api.navi.AMapNaviViewListener;
 import com.amap.api.navi.AMapNaviViewOptions;
 import com.amap.api.navi.enums.NaviType;
 import com.amap.api.navi.model.AMapCalcRouteResult;
+import com.amap.api.navi.model.AMapCarInfo;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapModelCross;
 import com.amap.api.navi.model.AMapNaviCameraInfo;
@@ -40,6 +41,7 @@ import cc.ibooker.amaplib.listeners.ZSimpleAMapNaviViewListener;
 
 /**
  * 自定义导航
+ * https://lbs.amap.com/api/android-navi-sdk/guide/route-plan/drive-route-plan
  *
  * @author 邹峰立
  */
@@ -53,6 +55,8 @@ public class ZAMapNaviView extends AMapNaviView
     private ArrayList<NaviLatLng> eList;// 终点集
     // 当前的导航类型
     private int currentNaviType = NaviType.GPS;
+    // 路线规划策略
+    private int strategy = -1;
     // 是否开启躲避拥堵
     private boolean isOpenCongestion = true;
     // 是否走高速
@@ -63,6 +67,10 @@ public class ZAMapNaviView extends AMapNaviView
     private boolean isHightSpeed = false;
     // 是否多路线
     private boolean isMultipleroute = false;
+    // 计算路线方式 0-驾车，1-货车，2-步行，3-骑行
+    private int calculateRouteType = 0;
+    // 车辆信息 - 当计算路线为货车的时候需要设置该值
+    private AMapCarInfo aMapCarInfo;
 
     // 是否开启自定RouteOverLay
     private boolean isOpenRouteOverLay = false;
@@ -151,6 +159,48 @@ public class ZAMapNaviView extends AMapNaviView
     // 获取导航控件
     public AMapNavi getAMapNavi() {
         return aMapNavi;
+    }
+
+    /**
+     * 设置路线规划策略
+     *
+     * @param strategy 0~20 21种策略
+     *                 https://lbs.amap.com/api/android-navi-sdk/guide/route-plan/drive-route-plan
+     */
+    public ZAMapNaviView setStrategy(int strategy) {
+        this.strategy = strategy;
+        return this;
+    }
+
+    /**
+     * 设置路线规划类型
+     *
+     * @param calculateRouteType 0-驾车，1-货车，2-步行，3-骑行
+     */
+    public ZAMapNaviView setCalculateRouteType(int calculateRouteType) {
+        this.calculateRouteType = calculateRouteType;
+        return this;
+    }
+
+    /**
+     * 设置车辆信息
+     *
+     * @param aMapCarInfo 待设置内容
+     */
+    public ZAMapNaviView setAMapCarInfo(AMapCarInfo aMapCarInfo) {
+//        aMapCarInfo.setCarType("1");//设置车辆类型，0小车，1货车
+//        aMapCarInfo.setCarNumber("京DFZ239");//设置车辆的车牌号码. 如:京DFZ239,京ABZ239
+//        aMapCarInfo.setVehicleSize("4");// 设置货车的等级
+//        aMapCarInfo.setVehicleLoad("100");//设置货车的总重，单位：吨。
+//        aMapCarInfo.setVehicleWeight("99");//设置货车的载重，单位：吨。
+//        aMapCarInfo.setVehicleLength("25");//  设置货车的最大长度，单位：米。
+//        aMapCarInfo.setVehicleWidth("2");//设置货车的最大宽度，单位：米。 如:1.8，1.5等等。
+//        aMapCarInfo.setVehicleHeight("4");//设置货车的高度，单位：米。
+//        aMapCarInfo.setVehicleAxis("6");//设置货车的轴数
+//        aMapCarInfo.setVehicleLoadSwitch(true);//设置车辆的载重是否参与算路
+//        aMapCarInfo.setRestriction(true);//设置是否躲避车辆限行。
+        this.aMapCarInfo = aMapCarInfo;
+        return this;
     }
 
     /**
@@ -480,16 +530,52 @@ public class ZAMapNaviView extends AMapNaviView
              *      不走高速与高速优先不能同时为true
              *      高速优先与避免收费不能同时为true
              */
-            int strategy = 0;
-            try {
-                strategy = aMapNavi.strategyConvert(isOpenCongestion, isAvoidHightSpeed, isCost, isHightSpeed, isMultipleroute);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (strategy < 0) {
+                strategy = 0;
+                try {
+                    strategy = aMapNavi.strategyConvert(isOpenCongestion, isAvoidHightSpeed, isCost, isHightSpeed, isMultipleroute);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             if (sList == null)
-                aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                // 0-驾车，1-货车，2-步行，3-骑行
+                switch (calculateRouteType) {
+                    case 1:
+                        aMapNavi.setCarInfo(aMapCarInfo);
+                        aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                        break;
+                    case 2:
+                        if (eList != null && eList.size() > 0)
+                            aMapNavi.calculateWalkRoute(eList.get(0));
+                        break;
+                    case 3:
+                        if (eList != null && eList.size() > 0)
+                            aMapNavi.calculateRideRoute(eList.get(0));
+                        break;
+                    default:
+                        aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                        break;
+                }
             else
-                aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
+                switch (calculateRouteType) {
+                    case 1:
+                        aMapNavi.setCarInfo(aMapCarInfo);
+                        aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
+                        break;
+                    case 2:
+                        if (eList != null && eList.size() > 0 && sList.size() > 0)
+                            aMapNavi.calculateWalkRoute(sList.get(0), eList.get(0));
+                        break;
+                    case 3:
+                        if (eList != null && eList.size() > 0 && sList.size() > 0)
+                            aMapNavi.calculateRideRoute(sList.get(0), eList.get(0));
+                        break;
+                    default:
+                        aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
+                        break;
+                }
+
         }
     }
 
