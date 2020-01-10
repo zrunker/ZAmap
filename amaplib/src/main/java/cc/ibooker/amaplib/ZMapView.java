@@ -84,6 +84,8 @@ import cc.ibooker.amaplib.overlays.ViewPoiOverlay;
 import cc.ibooker.amaplib.overlays.WalkRouteOverlay;
 import cc.ibooker.amaplib.util.AMapUtil;
 
+import static com.amap.api.services.route.RouteSearch.TRUCK_SIZE_MEDIUM;
+
 /**
  * 自定义地图
  * 功能一：显示地图
@@ -130,6 +132,7 @@ public class ZMapView extends MapView implements
     private RouteSearch mRouteSearch;
     private String mCurrentCityName = "北京";// 当前城市名称
     private int mRouteType = ROUTE_TYPE_DRIVE;// 交通类型
+    private int mTruckSize = TRUCK_SIZE_MEDIUM;// 货车大小-默认中型
     private int mSearchMode = RouteSearch.DRIVING_SINGLE_DEFAULT;// 当前查询模式
     private int mSearchRouteStartIcon = R.drawable.amap_start;
     private int mSearchRouteEndIcon = R.drawable.amap_end;
@@ -492,6 +495,19 @@ public class ZMapView extends MapView implements
      */
     public ZMapView setSearchMode(int searchMode) {
         this.mSearchMode = searchMode;
+        return this;
+    }
+
+    /**
+     * 设置货车大小
+     *
+     * @param truckSize TRUCK_SIZE_MINI = 1
+     *                  TRUCK_SIZE_LIGHT = 2
+     *                  TRUCK_SIZE_MEDIUM = 3
+     *                  TRUCK_SIZE_HEAVY = 4
+     */
+    public ZMapView setTruckSize(int truckSize) {
+        this.mTruckSize = truckSize;
         return this;
     }
 
@@ -1142,7 +1158,7 @@ public class ZMapView extends MapView implements
             // 第三个参数表示途经点，
             // 第四个参数货车大小 必填
             RouteSearch.TruckRouteQuery query = new RouteSearch.TruckRouteQuery(fromAndTo, mSearchMode,
-                    null, RouteSearch.TRUCK_SIZE_LIGHT);
+                    null, mTruckSize);
             mRouteSearch.calculateTruckRouteAsyn(query);
         }
         return this;
