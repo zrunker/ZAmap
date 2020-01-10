@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
                 .searchRouteResult(mStartPoint, mEndPoint);
     }
 
-    // 驾车规划
+    // 货车规划
     public void onTruckNext(View view) {
         zAmapView
 //                .setRouteSearchListener(this)
