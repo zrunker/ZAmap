@@ -134,6 +134,10 @@ public class RouteOverlay {
     }
 
     protected void addStartAndEndMarker(int startRes, int endRes) {
+        if (startRes == 0)
+            startRes = R.drawable.amap_start;
+        if (endRes == 0)
+            endRes = R.drawable.amap_end;
         startMarker = mAMap.addMarker((new MarkerOptions())
                 .position(startPoint).icon(getStartBitmapDescriptor(startRes))
                 .title("\u8D77\u70B9"));

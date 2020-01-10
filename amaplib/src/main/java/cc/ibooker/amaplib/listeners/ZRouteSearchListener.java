@@ -3,6 +3,7 @@ package cc.ibooker.amaplib.listeners;
 import com.amap.api.services.route.BusRouteResult;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
+import com.amap.api.services.route.TruckRouteRestult;
 import com.amap.api.services.route.WalkRouteResult;
 
 import java.util.ArrayList;
@@ -55,4 +56,12 @@ public interface ZRouteSearchListener {
      * @param distanceList 距离集合
      */
     void onBusNext(BusRouteResult result, ArrayList<Float> distanceList);
+
+    /**
+     * 驾车路径规划结果
+     *
+     * @param result       结果集合
+     * @param distanceList 距离集合
+     */
+    void onTruckNext(TruckRouteRestult result, ArrayList<Float> distanceList);
 }

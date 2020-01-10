@@ -7,16 +7,21 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.amap.api.services.core.LatLonPoint;
+import com.amap.api.services.core.PoiItem;
+import com.amap.api.services.core.SuggestionCity;
 import com.amap.api.services.route.BusRouteResult;
 import com.amap.api.services.route.DistanceResult;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
+import com.amap.api.services.route.TruckRouteRestult;
 import com.amap.api.services.route.WalkRouteResult;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cc.ibooker.amaplib.ZMapView;
 import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
+import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 
 public class MainActivity extends AppCompatActivity implements ZRouteSearchListener {
@@ -36,9 +41,6 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         // 显示地图
         zAmapView.onCreate(savedInstanceState);
 
-        // 显示导航
-        Intent intent = new Intent(this, NavActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -73,6 +75,12 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         super.onSaveInstanceState(outState);
         // 在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
         zAmapView.onSaveInstanceState(outState);
+    }
+
+    // 进入导航
+    public void enterNavActivity(View view) {
+        Intent intent = new Intent(this, NavActivity.class);
+        startActivity(intent);
     }
 
     // 设置中心位置
@@ -198,36 +206,47 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
                 .searchRouteResult(mStartPoint, mEndPoint);
     }
 
+    // 驾车规划
+    public void onTruckNext(View view) {
+        zAmapView
+//                .setRouteSearchListener(this)
+                .setRouteType(ZMapView.ROUTE_TYPE_TRUCK)
+                .searchRouteResult(mStartPoint, mEndPoint);
+    }
+
     // POI搜索
     public void onPoiSearch(View view) {
-        zAmapView
-//                .setPoiSearchListener(new ZPoiSearchListener() {
-//                    @Override
-//                    public void onPoiSearchStart() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPoiSearchComplete() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPoiSearchFail(String message) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPoiSearchError(Throwable e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
-//
-//                    }
-//                })
-                .poiSearchByPage("海淀区");
+        zAmapView.setPoiSearchListener(new ZPoiSearchListener() {
+            @Override
+            public void onPoiSearchStart() {
+
+            }
+
+            @Override
+            public void onPoiSearchComplete() {
+
+            }
+
+            @Override
+            public void onPoiSearchFail(String message) {
+
+            }
+
+            @Override
+            public void onPoiSearchError(Throwable e) {
+
+            }
+
+            @Override
+            public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
+
+            }
+
+            @Override
+            public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
+
+            }
+        }).poiSearchByPage("海淀区");
     }
 
     // 路线规划监听
@@ -269,6 +288,11 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
     @Override
     public void onBusNext(BusRouteResult result, ArrayList<Float> distanceList) {
         Toast.makeText(MainActivity.this, "路线规划: onBusNext", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onTruckNext(TruckRouteRestult result, ArrayList<Float> distanceList) {
+        Toast.makeText(MainActivity.this, "路线规划: onTruckNext", Toast.LENGTH_SHORT).show();
     }
 
     /**

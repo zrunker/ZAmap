@@ -3,6 +3,7 @@ package cc.ibooker.amaplib.clazz;
 import com.amap.api.services.route.BusRouteResult;
 import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RideRouteResult;
+import com.amap.api.services.route.TruckRouteRestult;
 import com.amap.api.services.route.WalkRouteResult;
 
 import java.util.ArrayList;
@@ -53,6 +54,11 @@ public class RouteSearchListenerClass implements ZRouteSearchListener {
 
     @Override
     public void onBusNext(BusRouteResult result, ArrayList<Float> distanceList) {
+
+    }
+
+    @Override
+    public void onTruckNext(TruckRouteRestult result, ArrayList<Float> distanceList) {
 
     }
 }

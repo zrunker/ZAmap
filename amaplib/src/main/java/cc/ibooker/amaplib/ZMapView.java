@@ -57,6 +57,8 @@ import com.amap.api.services.route.DriveRouteResult;
 import com.amap.api.services.route.RidePath;
 import com.amap.api.services.route.RideRouteResult;
 import com.amap.api.services.route.RouteSearch;
+import com.amap.api.services.route.TruckPath;
+import com.amap.api.services.route.TruckRouteRestult;
 import com.amap.api.services.route.WalkPath;
 import com.amap.api.services.route.WalkRouteResult;
 import com.autonavi.amap.mapcore.interfaces.IMapFragmentDelegate;
@@ -77,6 +79,7 @@ import cc.ibooker.amaplib.overlays.BusRouteOverlay;
 import cc.ibooker.amaplib.overlays.DrivingRouteOverlay;
 import cc.ibooker.amaplib.overlays.PoiOverlay;
 import cc.ibooker.amaplib.overlays.RideRouteOverlay;
+import cc.ibooker.amaplib.overlays.TruckRouteColorfulOverLay;
 import cc.ibooker.amaplib.overlays.ViewPoiOverlay;
 import cc.ibooker.amaplib.overlays.WalkRouteOverlay;
 import cc.ibooker.amaplib.util.AMapUtil;
@@ -99,7 +102,8 @@ public class ZMapView extends MapView implements
         AMap.OnMapLoadedListener,
         PoiSearch.OnPoiSearchListener,
         AMapLocationListener,
-        GeocodeSearch.OnGeocodeSearchListener {
+        GeocodeSearch.OnGeocodeSearchListener,
+        RouteSearch.OnTruckRouteSearchListener {
     // SDK在Android 6.0下需要进行运行检测的权限如下：
     private String[] permissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -118,7 +122,11 @@ public class ZMapView extends MapView implements
     private Animation mMarkerAnimation;// Marker动画
     private PoiOverlay mPoiOverlay;// 气泡样式
 
-    public static final int ROUTE_TYPE_BUS = 1, ROUTE_TYPE_DRIVE = 2, ROUTE_TYPE_WALK = 3, ROUTE_TYPE_RIDE = 4;
+    public static final int ROUTE_TYPE_BUS = 1,
+            ROUTE_TYPE_DRIVE = 2,
+            ROUTE_TYPE_WALK = 3,
+            ROUTE_TYPE_RIDE = 4,
+            ROUTE_TYPE_TRUCK = 5;
     private RouteSearch mRouteSearch;
     private String mCurrentCityName = "北京";// 当前城市名称
     private int mRouteType = ROUTE_TYPE_DRIVE;// 交通类型
@@ -490,7 +498,11 @@ public class ZMapView extends MapView implements
     /**
      * 设置当前交通类型
      *
-     * @param mRouteType 带设置值 ROUTE_TYPE_BUS = 1, ROUTE_TYPE_DRIVE = 2, ROUTE_TYPE_WALK = 3, ROUTE_TYPE_RIDE = 4;
+     * @param mRouteType 带设置值 ROUTE_TYPE_BUS = 1,
+     *                   ROUTE_TYPE_DRIVE = 2,
+     *                   ROUTE_TYPE_WALK = 3,
+     *                   ROUTE_TYPE_RIDE = 4,
+     *                   ROUTE_TYPE_TRUCK = 5
      */
     public ZMapView setRouteType(int mRouteType) {
         this.mRouteType = mRouteType;
@@ -505,7 +517,10 @@ public class ZMapView extends MapView implements
                 mSearchMode = RouteSearch.WALK_DEFAULT;
                 break;
             case ROUTE_TYPE_RIDE:
-                mSearchMode = RouteSearch.RIDING_DEFAULT;
+                mSearchMode = RouteSearch.DRIVING_NORMAL_CAR;
+                break;
+            case ROUTE_TYPE_TRUCK:// 默认是省钱、不走高速
+                mSearchMode = RouteSearch.TRUCK_SAVE_MONEY_NO_HIGHWAY;
                 break;
         }
         return this;
@@ -1096,6 +1111,7 @@ public class ZMapView extends MapView implements
         if (mRouteSearch == null)
             mRouteSearch = new RouteSearch(getContext());
         mRouteSearch.setRouteSearchListener(this);
+        mRouteSearch.setOnTruckRouteSearchListener(this);
         RouteSearch.FromAndTo fromAndTo = new RouteSearch.FromAndTo(startPoint, endPoint);
         if (mRouteType == ROUTE_TYPE_BUS) {// 公交路径规划
             // 第一个参数表示路径规划的起点和终点，
@@ -1111,8 +1127,8 @@ public class ZMapView extends MapView implements
             // 第三个参数表示途经点，
             // 第四个参数表示避让区域，
             // 第五个参数表示避让道路
-            RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, mSearchMode, null,
-                    null, "");
+            RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, mSearchMode,
+                    null, null, "");
             mRouteSearch.calculateDriveRouteAsyn(query);// 异步路径规划驾车模式查询
         } else if (mRouteType == ROUTE_TYPE_WALK) {// 步行路径规划
             RouteSearch.WalkRouteQuery query = new RouteSearch.WalkRouteQuery(fromAndTo);
@@ -1120,6 +1136,14 @@ public class ZMapView extends MapView implements
         } else if (mRouteType == ROUTE_TYPE_RIDE) {// 骑行路径规划
             RouteSearch.RideRouteQuery query = new RouteSearch.RideRouteQuery(fromAndTo);
             mRouteSearch.calculateRideRouteAsyn(query);// 异步路径规划骑行模式查询
+        } else if (mRouteType == ROUTE_TYPE_TRUCK) {// 驾车路线规划 - 默认轻型车
+            // 第一个参数表示路径规划的起点和终点，
+            // 第二个参数表示计算路径的模式，
+            // 第三个参数表示途经点，
+            // 第四个参数货车大小 必填
+            RouteSearch.TruckRouteQuery query = new RouteSearch.TruckRouteQuery(fromAndTo, mSearchMode,
+                    null, RouteSearch.TRUCK_SIZE_LIGHT);
+            mRouteSearch.calculateTruckRouteAsyn(query);
         }
         return this;
     }
@@ -1675,5 +1699,45 @@ public class ZMapView extends MapView implements
                 zGeocodeSearchListener.onGeocodeSearchComplete();
             }
         }
+    }
+
+    // 货车路线规划返回结果
+    @Override
+    public void onTruckRouteSearched(TruckRouteRestult truckRouteRestult, int errorCode) {
+        getAMap().clear();// 清理地图上的所有覆盖物
+        if (errorCode == 1000) {
+            if (truckRouteRestult != null
+                    && truckRouteRestult.getPaths() != null
+                    && truckRouteRestult.getPaths().size() > 0) {
+                if (zRouteSearchListener != null) {
+                    ArrayList<Float> list = new ArrayList<>();
+                    List<TruckPath> truckPathList = truckRouteRestult.getPaths();
+                    for (TruckPath truckpath : truckPathList)
+                        list.add(truckpath.getDistance());
+                    Collections.sort(list);
+                    zRouteSearchListener.onTruckNext(truckRouteRestult, list);
+                } else {
+                    TruckPath path = truckRouteRestult.getPaths().get(0);
+                    TruckRouteColorfulOverLay drivingRouteOverlay = new TruckRouteColorfulOverLay(
+                            getContext(), getAMap(), path, truckRouteRestult.getStartPos(),
+                            truckRouteRestult.getTargetPos(), null);
+                    drivingRouteOverlay.removeFromMap();
+                    drivingRouteOverlay.setIsColorfulline(true);
+                    drivingRouteOverlay.addToMap(mSearchRouteStartIcon, mSearchRouteEndIcon);
+                    drivingRouteOverlay.zoomToSpan();
+                }
+
+//                if (zRouteSearchListener != null)
+//                    zRouteSearchListener.onRouteSearchSuccess();
+            } else {
+                if (zRouteSearchListener != null)
+                    zRouteSearchListener.onRouteSearchFail("未获取到任何数据！");
+            }
+        } else {
+            if (zRouteSearchListener != null)
+                zRouteSearchListener.onRouteSearchFail("路线规划失败：" + errorCode);
+        }
+        if (zRouteSearchListener != null)
+            zRouteSearchListener.onRouteSearchComplete();
     }
 }
