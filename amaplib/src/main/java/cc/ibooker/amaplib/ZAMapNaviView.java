@@ -889,4 +889,18 @@ public class ZAMapNaviView extends AMapNaviView
         }
         return this;
     }
+
+    /**
+     * 设置地图自定义样式
+     *
+     * @param styleId 官网控制台-自定义样式 获取
+     */
+    public ZAMapNaviView setStyleId(String styleId) {
+        getMap().setCustomMapStyle(
+                new com.amap.api.maps.model.CustomMapStyleOptions()
+                        .setEnable(true)
+                        .setStyleId(styleId)
+        );
+        return this;
+    }
 }

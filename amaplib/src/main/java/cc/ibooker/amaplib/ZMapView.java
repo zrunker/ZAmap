@@ -1756,4 +1756,18 @@ public class ZMapView extends MapView implements
         if (zRouteSearchListener != null)
             zRouteSearchListener.onRouteSearchComplete();
     }
+
+    /**
+     * 设置地图自定义样式
+     *
+     * @param styleId 官网控制台-自定义样式 获取
+     */
+    public ZMapView setStyleId(String styleId) {
+        getMap().setCustomMapStyle(
+                new com.amap.api.maps.model.CustomMapStyleOptions()
+                        .setEnable(true)
+                        .setStyleId(styleId)
+        );
+        return this;
+    }
 }
