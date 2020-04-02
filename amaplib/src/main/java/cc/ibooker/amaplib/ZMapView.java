@@ -1572,14 +1572,15 @@ public class ZMapView extends MapView implements
      *
      * @param latlng 位置信息
      */
-    private void addLatLngMarker(@NonNull LatLng latlng) {
+    public ZMapView addLatLngMarker(@NonNull LatLng latlng) {
         if (mLocationMarker != null)
-            return;
+            mLocationMarker.remove();
         MarkerOptions options = new MarkerOptions();
         options.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(this.getResources(), R.mipmap.navi_map_gps_locked)))
                 .anchor(0.5f, 0.5f)
                 .position(latlng);
         mLocationMarker = getAMap().addMarker(options);
+        return this;
     }
 
     /**
@@ -1899,6 +1900,15 @@ public class ZMapView extends MapView implements
             markerOptions.position(latLng);
             marker = aMap.addMarker(markerOptions);
         }
+        return this;
+    }
+
+    /**
+     * 移除当前定位Marker
+     */
+    public ZMapView removeLocationMarker() {
+        if (mLocationMarker != null)
+            mLocationMarker.remove();
         return this;
     }
 }
