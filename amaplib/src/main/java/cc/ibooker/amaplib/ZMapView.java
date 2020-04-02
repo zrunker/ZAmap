@@ -131,6 +131,7 @@ public class ZMapView extends MapView implements
     private boolean isOnceLocation = false;// 是否为单次定位
     private long interval = 2000;// 定位间隔,单位毫秒,默认为2000ms，最低1000ms
     private long httpTimeOut = 30000;// 超时时长
+    private int defaultZoom = 17;// 默认地址缩放级别 1 - 19
 
     public static final int ROUTE_TYPE_BUS = 1,
             ROUTE_TYPE_DRIVE = 2,
@@ -170,6 +171,7 @@ public class ZMapView extends MapView implements
     private boolean mFirstLocationFix = false;
     private Marker mLocationMarker;
     private Circle mLocationCircle;
+    private boolean isShieldingDefaultLocationOper = false;// 是否屏蔽默认地位操作
 
     // 计算距离
     private DistanceSearch distanceSearch;
@@ -367,6 +369,26 @@ public class ZMapView extends MapView implements
             mLocationClient.setLocationListener(this);
         }
         return mLocationClient;
+    }
+
+    /**
+     * 是否禁止默认定位结果操作
+     *
+     * @param shieldingDefaultLocationOper 是否禁止
+     */
+    public ZMapView setShieldingDefaultLocationOper(boolean shieldingDefaultLocationOper) {
+        isShieldingDefaultLocationOper = shieldingDefaultLocationOper;
+        return this;
+    }
+
+    /**
+     * 设置默认地址缩放级别
+     *
+     * @param defaultZoom 待设置值
+     */
+    public ZMapView setDefaultZoom(int defaultZoom) {
+        this.defaultZoom = defaultZoom;
+        return this;
     }
 
     /**
@@ -1493,14 +1515,14 @@ public class ZMapView extends MapView implements
 
                 if (zLocationListener != null)
                     zLocationListener.onLocationNext(locationData);
-                else {
+                if (!isShieldingDefaultLocationOper) {
                     LatLng location = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
                     if (!mFirstLocationFix) {
                         mFirstLocationFix = true;
                         addLatLngCircle(location, amapLocation.getAccuracy());// 添加定位精度圆
                         addLatLngMarker(location);// 添加定位图标
                         mSensorHelper.setCurrentMarker(mLocationMarker);// 定位图标旋转
-                        getAMap().moveCamera(CameraUpdateFactory.newLatLngZoom(location, 17));
+                        getAMap().moveCamera(CameraUpdateFactory.newLatLngZoom(location, defaultZoom));
                     } else {
                         mLocationCircle.setCenter(location);
                         mLocationCircle.setRadius(amapLocation.getAccuracy());
