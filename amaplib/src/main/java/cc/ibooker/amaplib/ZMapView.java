@@ -128,6 +128,9 @@ public class ZMapView extends MapView implements
     private boolean isShowBuildings = true;// 是否隐藏3D楼块效果
     private Animation mMarkerAnimation;// Marker动画
     private PoiOverlay mPoiOverlay;// 气泡样式
+    private boolean isOnceLocation = false;// 是否为单次定位
+    private long interval = 2000;// 定位间隔,单位毫秒,默认为2000ms，最低1000ms
+    private long httpTimeOut = 30000;// 超时时长
 
     public static final int ROUTE_TYPE_BUS = 1,
             ROUTE_TYPE_DRIVE = 2,
@@ -255,6 +258,7 @@ public class ZMapView extends MapView implements
         aMap.setOnMapClickListener(this);
         aMap.setOnMapLongClickListener(this);
         requestPermissions();
+        setHttpTimeOut(httpTimeOut);
     }
 
     public void resume() {
@@ -363,6 +367,42 @@ public class ZMapView extends MapView implements
             mLocationClient.setLocationListener(this);
         }
         return mLocationClient;
+    }
+
+    /**
+     * 设置是否单次定位
+     *
+     * @param isOnceLocation 单次定位
+     */
+    public ZMapView setOnceLocation(boolean isOnceLocation) {
+        this.isOnceLocation = isOnceLocation;
+        if (getLocationOption() != null)
+            getLocationOption().setOnceLocation(isOnceLocation);
+        return this;
+    }
+
+    /**
+     * 设置定位间隔
+     *
+     * @param interval 定位间隔
+     */
+    public ZMapView setInterval(long interval) {
+        this.interval = interval;
+        if (getLocationOption() != null)
+            getLocationOption().setInterval(interval);
+        return this;
+    }
+
+    /**
+     * 设置定位超时时长
+     *
+     * @param httpTimeOut 超时时长
+     */
+    public ZMapView setHttpTimeOut(long httpTimeOut) {
+        this.httpTimeOut = httpTimeOut;
+        if (getLocationOption() != null)
+            getLocationOption().setHttpTimeOut(httpTimeOut);
+        return this;
     }
 
     /**
@@ -1478,8 +1518,9 @@ public class ZMapView extends MapView implements
                             + amapLocation.getErrorCode() + ", errInfo:"
                             + amapLocation.getErrorInfo());
             }
-            // 关闭定位
-            mLocationClient.stopLocation();
+            // 单次定位 - 关闭定位
+            if (isOnceLocation)
+                mLocationClient.stopLocation();
         } else {
             if (zLocationListener != null)
                 zLocationListener.onLocationFail("定位失败！");

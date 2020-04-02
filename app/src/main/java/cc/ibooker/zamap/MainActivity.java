@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cc.ibooker.amaplib.ZMapView;
+import cc.ibooker.amaplib.dto.LocationData;
 import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
+import cc.ibooker.amaplib.listeners.ZLocationListener;
 import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 
@@ -145,32 +147,32 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 
         // 开启定位
         zAmapView
-//                .setLocationListener(new ZLocationListener() {
-//                    @Override
-//                    public void onLocationStart() {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationStart", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onLocationComplete() {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationComplete", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onLocationFail(String message) {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationFail " + message, Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onLocationError(Throwable e) {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationError " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onLocationNext(LocationData locationData) {
-//                        Toast.makeText(MainActivity.this, "定位: onLocationNext " + locationData.toString(), Toast.LENGTH_SHORT).show();
-//                    }
-//                })
+                .setLocationListener(new ZLocationListener() {
+                    @Override
+                    public void onLocationStart() {
+                        Toast.makeText(MainActivity.this, "定位: onLocationStart", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLocationComplete() {
+                        Toast.makeText(MainActivity.this, "定位: onLocationComplete", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLocationFail(String message) {
+                        Toast.makeText(MainActivity.this, "定位: onLocationFail " + message, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLocationError(Throwable e) {
+                        Toast.makeText(MainActivity.this, "定位: onLocationError " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLocationNext(LocationData locationData) {
+                        Toast.makeText(MainActivity.this, "定位: onLocationNext " + locationData.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                })
                 .startLocation();
     }
 
