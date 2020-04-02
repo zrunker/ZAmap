@@ -72,7 +72,9 @@ import cc.ibooker.amaplib.dto.LocationData;
 import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
 import cc.ibooker.amaplib.listeners.ZGeocodeSearchListener;
 import cc.ibooker.amaplib.listeners.ZLocationListener;
+import cc.ibooker.amaplib.listeners.ZMapClickListener;
 import cc.ibooker.amaplib.listeners.ZMapLoadedListener;
+import cc.ibooker.amaplib.listeners.ZMapLongClickListener;
 import cc.ibooker.amaplib.listeners.ZPoiSearchListener;
 import cc.ibooker.amaplib.listeners.ZRouteSearchListener;
 import cc.ibooker.amaplib.overlays.BusRouteOverlay;
@@ -94,6 +96,7 @@ import static com.amap.api.services.route.RouteSearch.TRUCK_SIZE_MEDIUM;
  * 功能四：距离搜索-计算
  * 功能五：逆向地址查询
  * 功能六：定位
+ * 功能七：地图点击、长按监听
  * https://lbs.amap.com/dev/demo/ride-route-plan#Android
  *
  * @author 邹峰立
@@ -102,6 +105,8 @@ public class ZMapView extends MapView implements
         Thread.UncaughtExceptionHandler,
         RouteSearch.OnRouteSearchListener,
         AMap.OnMapLoadedListener,
+        AMap.OnMapClickListener,
+        AMap.OnMapLongClickListener,
         PoiSearch.OnPoiSearchListener,
         AMapLocationListener,
         GeocodeSearch.OnGeocodeSearchListener,
@@ -140,6 +145,8 @@ public class ZMapView extends MapView implements
     private PoiSearch.Query mPoiQuery;// Poi查询条件类
     private PoiSearch mPoiSearch;// POI搜索
     private int poiSearchCurrentPage = 0;
+
+    private Marker marker;// 定位Marker
 
     // 逆向地址查询
     private GeocodeSearch mGeocodeSearch;
@@ -204,6 +211,22 @@ public class ZMapView extends MapView implements
         return this;
     }
 
+    // 地图点击事件监听
+    private ZMapClickListener zMapClickListener;
+
+    public ZMapView setzMapClickListener(ZMapClickListener zMapClickListener) {
+        this.zMapClickListener = zMapClickListener;
+        return this;
+    }
+
+    // 地图长按事件监听
+    private ZMapLongClickListener zMapLongClickListener;
+
+    public ZMapView setzMapLongClickListener(ZMapLongClickListener zMapLongClickListener) {
+        this.zMapLongClickListener = zMapLongClickListener;
+        return this;
+    }
+
     public ZMapView(Context context) {
         super(context);
         init();
@@ -229,6 +252,8 @@ public class ZMapView extends MapView implements
     private void init() {
         aMap = getMap();
         aMap.setOnMapLoadedListener(this);
+        aMap.setOnMapClickListener(this);
+        aMap.setOnMapLongClickListener(this);
         requestPermissions();
     }
 
@@ -1768,6 +1793,49 @@ public class ZMapView extends MapView implements
                         .setEnable(true)
                         .setStyleId(styleId)
         );
+        return this;
+    }
+
+    // 地图点击事件
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (zMapClickListener != null)
+            zMapClickListener.onMapClick(latLng);
+        else
+            addMarker(latLng);
+    }
+
+    // 地图长按事件
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        if (zMapLongClickListener != null)
+            zMapLongClickListener.onMapLongClick(latLng);
+    }
+
+    /**
+     * 地图上添加marker
+     *
+     * @param latLng 待显示位置
+     */
+    public ZMapView addMarker(LatLng latLng) {
+        return addMarker(latLng, R.mipmap.navi_map_gps_locked);
+    }
+
+    /**
+     * 地图上添加marker
+     *
+     * @param latLng 待显示位置
+     * @param res    图标地址
+     */
+    public ZMapView addMarker(LatLng latLng, int res) {
+        if (aMap != null) {
+            if (marker != null)
+                marker.remove();
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(res));
+            markerOptions.position(latLng);
+            marker = aMap.addMarker(markerOptions);
+        }
         return this;
     }
 }

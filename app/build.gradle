@@ -5,13 +5,13 @@ android {
         debug {
             keyAlias 'ZAmap'
             keyPassword 'zamap006008.'
-            storeFile file('D:/AndroidStudio/AndroidStudioProjects/ibooker/android/ZAmap/zamap.jks')
+            storeFile file('zamap.jks')
             storePassword '006008'
         }
         release {
             keyAlias 'ZAmap'
             keyPassword 'zamap006008.'
-            storeFile file('D:/AndroidStudio/AndroidStudioProjects/ibooker/android/ZAmap/zamap.jks')
+            storeFile file('zamap.jks')
             storePassword '006008'
         }
     }
