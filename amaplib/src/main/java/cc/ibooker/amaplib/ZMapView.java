@@ -15,10 +15,14 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
+import com.amap.api.fence.GeoFence;
+import com.amap.api.fence.GeoFenceClient;
+import com.amap.api.fence.GeoFenceListener;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.DPoint;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.AMapOptions;
 import com.amap.api.maps.CameraUpdate;
@@ -70,6 +74,7 @@ import java.util.List;
 
 import cc.ibooker.amaplib.dto.LocationData;
 import cc.ibooker.amaplib.listeners.ZDistanceSearchListener;
+import cc.ibooker.amaplib.listeners.ZGeoFenceListener;
 import cc.ibooker.amaplib.listeners.ZGeocodeSearchListener;
 import cc.ibooker.amaplib.listeners.ZLocationListener;
 import cc.ibooker.amaplib.listeners.ZMapClickListener;
@@ -86,6 +91,9 @@ import cc.ibooker.amaplib.overlays.ViewPoiOverlay;
 import cc.ibooker.amaplib.overlays.WalkRouteOverlay;
 import cc.ibooker.amaplib.util.AMapUtil;
 
+import static com.amap.api.fence.GeoFenceClient.GEOFENCE_IN;
+import static com.amap.api.fence.GeoFenceClient.GEOFENCE_OUT;
+import static com.amap.api.fence.GeoFenceClient.GEOFENCE_STAYED;
 import static com.amap.api.services.route.RouteSearch.TRUCK_SIZE_MEDIUM;
 
 /**
@@ -97,6 +105,7 @@ import static com.amap.api.services.route.RouteSearch.TRUCK_SIZE_MEDIUM;
  * 功能五：逆向地址查询
  * 功能六：定位
  * 功能七：地图点击、长按监听
+ * 功能八：地址围栏
  * https://lbs.amap.com/dev/demo/ride-route-plan#Android
  *
  * @author 邹峰立
@@ -110,7 +119,8 @@ public class ZMapView extends MapView implements
         PoiSearch.OnPoiSearchListener,
         AMapLocationListener,
         GeocodeSearch.OnGeocodeSearchListener,
-        RouteSearch.OnTruckRouteSearchListener {
+        RouteSearch.OnTruckRouteSearchListener,
+        GeoFenceListener {
     // SDK在Android 6.0下需要进行运行检测的权限如下：
     private String[] permissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -150,7 +160,16 @@ public class ZMapView extends MapView implements
     private PoiSearch mPoiSearch;// POI搜索
     private int poiSearchCurrentPage = 0;
 
-    private Marker marker;// 定位Marker
+    private Marker marker;// 地图Marker
+
+    // 地址围栏
+    private GeoFenceClient mGeoFenceClient;
+    private ZGeoFenceListener zGeoFenceListener;
+
+    public ZMapView setzGeoFenceListener(ZGeoFenceListener zGeoFenceListener) {
+        this.zGeoFenceListener = zGeoFenceListener;
+        return this;
+    }
 
     // 逆向地址查询
     private GeocodeSearch mGeocodeSearch;
@@ -158,8 +177,9 @@ public class ZMapView extends MapView implements
     // 逆向地址查询监听
     private ZGeocodeSearchListener zGeocodeSearchListener;
 
-    public void setGeocodeSearchListener(ZGeocodeSearchListener geocodeSearchListener) {
+    public ZMapView setGeocodeSearchListener(ZGeocodeSearchListener geocodeSearchListener) {
         this.zGeocodeSearchListener = geocodeSearchListener;
+        return this;
     }
 
     // 定位
@@ -261,6 +281,18 @@ public class ZMapView extends MapView implements
         aMap.setOnMapLongClickListener(this);
         requestPermissions();
         setHttpTimeOut(httpTimeOut);
+    }
+
+    /**
+     * 获取地址围栏
+     */
+    public GeoFenceClient getGeoFenceClient() {
+        if (mGeoFenceClient == null) {
+            mGeoFenceClient = new GeoFenceClient(getContext());
+            mGeoFenceClient.setActivateAction(GEOFENCE_IN | GEOFENCE_OUT | GEOFENCE_STAYED);
+            mGeoFenceClient.setGeoFenceListener(this);
+        }
+        return mGeoFenceClient;
     }
 
     public void resume() {
@@ -1557,7 +1589,7 @@ public class ZMapView extends MapView implements
      * @param latlng 位置
      * @param radius 半径
      */
-    private void addLatLngCircle(@NonNull LatLng latlng, double radius) {
+    private ZMapView addLatLngCircle(@NonNull LatLng latlng, double radius) {
         CircleOptions options = new CircleOptions();
         options.strokeWidth(1f)
                 .fillColor(FILL_COLOR)
@@ -1565,6 +1597,7 @@ public class ZMapView extends MapView implements
                 .center(latlng)
                 .radius(radius);
         mLocationCircle = getAMap().addCircle(options);
+        return this;
     }
 
     /**
@@ -1910,5 +1943,81 @@ public class ZMapView extends MapView implements
         if (mLocationMarker != null)
             mLocationMarker.remove();
         return this;
+    }
+
+    /**
+     * POI关键字搜索并创建高德POI地理围栏
+     *
+     * @param keyword  POI关键字  例如：首开广场
+     * @param poiType  POI类型  例如：写字楼
+     * @param city     POI所在的城市名称 例如：北京
+     * @param customId 与围栏关联的自有业务Id
+     */
+    public ZMapView addGeoFence(String keyword, String poiType, String city, int size, String customId) {
+        getGeoFenceClient().addGeoFence(keyword, poiType, city, size, customId);
+        return this;
+    }
+
+    /**
+     * POI周边搜索并创建高德POI地理围栏
+     *
+     * @param keyword      POI关键字 例如：首开广场
+     * @param poiType      POI类型  例如：写字楼
+     * @param point        周边区域中心点的经纬度，以此中心点建立周边地理围栏 例如：北京
+     * @param aroundRadius 周边半径，0-50000米，默认3000米
+     * @param customId     与围栏关联的自有业务Id
+     */
+    public ZMapView addGeoFence(String keyword, String poiType, DPoint point, float aroundRadius, int size, String customId) {
+        getGeoFenceClient().addGeoFence(keyword, poiType, point, aroundRadius, size, customId);
+        return this;
+    }
+
+    /**
+     * 行政区划关键字创建行政区划围栏
+     *
+     * @param keyword  行政区划关键字 例如：朝阳区
+     * @param customId 与围栏关联的自有业务Id
+     */
+    public ZMapView addGeoFence(String keyword, String customId) {
+        getGeoFenceClient().addGeoFence(keyword, customId);
+        return this;
+    }
+
+    /**
+     * 创建自定义围栏
+     *
+     * @param point    围栏中心点
+     * @param radius   要创建的围栏半径 ，半径无限制，单位米
+     * @param customId 与围栏关联的自有业务Id
+     */
+    public ZMapView addGeoFence(DPoint point, float radius, String customId) {
+        getGeoFenceClient().addGeoFence(point, radius, customId);
+        return this;
+    }
+
+    /**
+     * 多边形围栏
+     *
+     * @param points   多边形的边界坐标点，最少传3个
+     * @param customId 与围栏关联的自有业务Id
+     */
+    public ZMapView addGeoFence(List<DPoint> points, String customId) {
+        getGeoFenceClient().addGeoFence(points, customId);
+        return this;
+    }
+
+    /**
+     * 清空围栏
+     */
+    public ZMapView removeGeoFence() {
+        if (mGeoFenceClient != null)
+            mGeoFenceClient.removeGeoFence();
+        return this;
+    }
+
+    @Override
+    public void onGeoFenceCreateFinished(List<GeoFence> list, int i, String s) {
+        if (zGeoFenceListener != null)
+            zGeoFenceListener.onGeoFenceCreateFinished(list, i, s);
     }
 }
