@@ -2073,4 +2073,9 @@ public class ZMapView extends MapView implements
         if (zGeoFenceListener != null)
             zGeoFenceListener.onGeoFenceCreateFinished(list, i, s);
     }
+
+    // 地址坐标转LatLng
+    public LatLng toLatLng(double latitude, double longitude) {
+        return new LatLng(latitude, longitude);
+    }
 }
