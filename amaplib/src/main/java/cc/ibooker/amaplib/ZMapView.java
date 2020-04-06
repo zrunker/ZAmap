@@ -1193,6 +1193,47 @@ public class ZMapView extends MapView implements
     }
 
     /**
+     * 周边检索POI
+     *
+     * @param keywords  关键字
+     * @param type      poi搜索类型
+     * @param city      城市，名称或code
+     * @param pageSize  每页显示条数
+     * @param latitude  经度
+     * @param longitude 纬度
+     * @param range     范围
+     */
+    public ZMapView poiSearch(String keywords, String type, String city, int pageSize,
+                              double latitude, double longitude, int range) {
+        if (TextUtils.isEmpty(keywords)) {
+            if (zPoiSearchListener != null)
+                zPoiSearchListener.onPoiSearchFail("关键词未输入！");
+            return this;
+        }
+        if (zPoiSearchListener != null)
+            zPoiSearchListener.onPoiSearchStart();
+        if (mPoiQuery == null)
+            // 第一个参数表示搜索字符串，
+            // 第二个参数表示poi搜索类型，
+            // 第三个参数表示poi搜索区域（空字符串代表全国）
+            mPoiQuery = new PoiSearch.Query(keywords, type, city);
+        // 设置每页最多返回多少条poiItem
+        mPoiQuery.setPageSize(pageSize);
+        // 设置查第一页
+        if (poiSearchCurrentPage <= 0)
+            poiSearchCurrentPage = 1;
+        mPoiQuery.setPageNum(poiSearchCurrentPage);
+        if (mPoiSearch == null)
+            mPoiSearch = new PoiSearch(getContext(), mPoiQuery);
+        mPoiSearch.setOnPoiSearchListener(this);
+        // 设置周边搜索的中心点以及半径
+        mPoiSearch.setBound(new PoiSearch.SearchBound(new LatLonPoint(latitude,
+                longitude), range));
+        mPoiSearch.searchPOIAsyn();
+        return this;
+    }
+
+    /**
      * 开始搜索路径规划方案
      *
      * @param startPoint          起点坐标
