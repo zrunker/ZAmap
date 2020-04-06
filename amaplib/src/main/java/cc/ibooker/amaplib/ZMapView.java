@@ -1154,7 +1154,19 @@ public class ZMapView extends MapView implements
      * @param type     poi搜索类型
      * @param pageSize 每页显示条数
      */
-    public ZMapView poiSearch(String keywords, @NonNull String type, int pageSize) {
+    public ZMapView poiSearch(String keywords, String type, int pageSize) {
+        return poiSearch(keywords, type, mCurrentCityName, pageSize);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
+     * @param keywords 关键字
+     * @param type     poi搜索类型
+     * @param city     城市，名称或code
+     * @param pageSize 每页显示条数
+     */
+    public ZMapView poiSearch(String keywords, String type, String city, int pageSize) {
         if (TextUtils.isEmpty(keywords)) {
             if (zPoiSearchListener != null)
                 zPoiSearchListener.onPoiSearchFail("关键词未输入！");
@@ -1166,7 +1178,7 @@ public class ZMapView extends MapView implements
             // 第一个参数表示搜索字符串，
             // 第二个参数表示poi搜索类型，
             // 第三个参数表示poi搜索区域（空字符串代表全国）
-            mPoiQuery = new PoiSearch.Query(keywords, type, mCurrentCityName);
+            mPoiQuery = new PoiSearch.Query(keywords, type, city);
         // 设置每页最多返回多少条poiItem
         mPoiQuery.setPageSize(pageSize);
         // 设置查第一页
