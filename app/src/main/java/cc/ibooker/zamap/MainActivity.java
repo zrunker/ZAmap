@@ -241,14 +241,14 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
 
             @Override
             public void onPoiSearchNext(List<PoiItem> poiItems, List<SuggestionCity> suggestionCities) {
-
+                Toast.makeText(MainActivity.this, poiItems.size() + "条", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
 
             }
-        }).poiSearchByPage("海淀区");
+        }).poiSearch("大学",null,null, 10);
     }
 
     // 路线规划监听

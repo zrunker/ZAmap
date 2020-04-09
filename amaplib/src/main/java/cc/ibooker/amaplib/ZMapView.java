@@ -1174,19 +1174,17 @@ public class ZMapView extends MapView implements
         }
         if (zPoiSearchListener != null)
             zPoiSearchListener.onPoiSearchStart();
-        if (mPoiQuery == null)
-            // 第一个参数表示搜索字符串，
-            // 第二个参数表示poi搜索类型，
-            // 第三个参数表示poi搜索区域（空字符串代表全国）
-            mPoiQuery = new PoiSearch.Query(keywords, type, city);
+        // 第一个参数表示搜索字符串，
+        // 第二个参数表示poi搜索类型，
+        // 第三个参数表示poi搜索区域（空字符串代表全国）
+        mPoiQuery = new PoiSearch.Query(keywords, type, city);
         // 设置每页最多返回多少条poiItem
         mPoiQuery.setPageSize(pageSize);
         // 设置查第一页
         if (poiSearchCurrentPage <= 0)
-            poiSearchCurrentPage = 1;
+            poiSearchCurrentPage = 0;
         mPoiQuery.setPageNum(poiSearchCurrentPage);
-        if (mPoiSearch == null)
-            mPoiSearch = new PoiSearch(getContext(), mPoiQuery);
+        mPoiSearch = new PoiSearch(getContext(), mPoiQuery);
         mPoiSearch.setOnPoiSearchListener(this);
         mPoiSearch.searchPOIAsyn();
         return this;
@@ -1212,19 +1210,17 @@ public class ZMapView extends MapView implements
         }
         if (zPoiSearchListener != null)
             zPoiSearchListener.onPoiSearchStart();
-        if (mPoiQuery == null)
-            // 第一个参数表示搜索字符串，
-            // 第二个参数表示poi搜索类型，
-            // 第三个参数表示poi搜索区域（空字符串代表全国）
-            mPoiQuery = new PoiSearch.Query(keywords, type, city);
+        // 第一个参数表示搜索字符串，
+        // 第二个参数表示poi搜索类型，
+        // 第三个参数表示poi搜索区域（空字符串代表全国）
+        mPoiQuery = new PoiSearch.Query(keywords, type, city);
         // 设置每页最多返回多少条poiItem
         mPoiQuery.setPageSize(pageSize);
         // 设置查第一页
         if (poiSearchCurrentPage <= 0)
-            poiSearchCurrentPage = 1;
+            poiSearchCurrentPage = 0;
         mPoiQuery.setPageNum(poiSearchCurrentPage);
-        if (mPoiSearch == null)
-            mPoiSearch = new PoiSearch(getContext(), mPoiQuery);
+        mPoiSearch = new PoiSearch(getContext(), mPoiQuery);
         mPoiSearch.setOnPoiSearchListener(this);
         // 设置周边搜索的中心点以及半径
         mPoiSearch.setBound(new PoiSearch.SearchBound(new LatLonPoint(latitude,
