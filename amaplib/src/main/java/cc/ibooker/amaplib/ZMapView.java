@@ -378,6 +378,23 @@ public class ZMapView extends MapView implements
     }
 
     /**
+     * 设置POI搜索当前页
+     *
+     * @param poiSearchCurrentPage 待设置页面
+     */
+    public ZMapView setPoiSearchCurrentPage(int poiSearchCurrentPage) {
+        this.poiSearchCurrentPage = poiSearchCurrentPage;
+        return this;
+    }
+
+    /**
+     * 获取POI搜索当前页面
+     */
+    public int getPoiSearchCurrentPage() {
+        return poiSearchCurrentPage;
+    }
+
+    /**
      * 获取mLocationOption
      */
     public AMapLocationClientOption getLocationOption() {
