@@ -998,7 +998,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索 - 下一页
+     * 分页开始进行poi搜索 - 下一页 - 当前城市
      *
      * @param keywords          关键字
      * @param poiSearchListener POI搜索监听
@@ -1010,7 +1010,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索 - 下一页
+     * 分页开始进行poi搜索 - 下一页 - 当前城市
      *
      * @param keywords 关键字
      */
@@ -1020,7 +1020,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param poiSearchListener POI搜索监听
@@ -1031,7 +1031,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      */
@@ -1040,7 +1040,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param type              poi搜索类型
@@ -1053,7 +1053,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      * @param type     poi搜索类型
@@ -1064,7 +1064,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param type              poi搜索类型
@@ -1077,7 +1077,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      * @param type     poi搜索类型
@@ -1087,7 +1087,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param pageSize          每页显示条数
@@ -1100,7 +1100,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      * @param pageSize 每页显示条数
@@ -1111,7 +1111,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param pageSize          每页显示条数
@@ -1124,7 +1124,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      * @param pageSize 每页显示条数
@@ -1134,7 +1134,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords          关键字
      * @param type              poi搜索类型
@@ -1148,7 +1148,7 @@ public class ZMapView extends MapView implements
     }
 
     /**
-     * 分页开始进行poi搜索
+     * 分页开始进行poi搜索 - 当前城市
      *
      * @param keywords 关键字
      * @param type     poi搜索类型
@@ -1156,6 +1156,19 @@ public class ZMapView extends MapView implements
      */
     public ZMapView poiSearch(String keywords, String type, int pageSize) {
         return poiSearch(keywords, type, mCurrentCityName, pageSize);
+    }
+
+    /**
+     * 分页开始进行poi搜索
+     *
+     * @param keywords 关键字
+     * @param type     poi搜索类型
+     * @param city     城市，名称或code
+     * @param pageSize 每页显示条数
+     */
+    public ZMapView poiSearchNext(String keywords, String type, String city, int pageSize) {
+        poiSearchCurrentPage++;
+        return poiSearch(keywords, type, city, pageSize);
     }
 
     /**
@@ -1188,6 +1201,23 @@ public class ZMapView extends MapView implements
         mPoiSearch.setOnPoiSearchListener(this);
         mPoiSearch.searchPOIAsyn();
         return this;
+    }
+
+    /**
+     * 周边检索POI
+     *
+     * @param keywords  关键字
+     * @param type      poi搜索类型
+     * @param city      城市，名称或code
+     * @param pageSize  每页显示条数
+     * @param latitude  经度
+     * @param longitude 纬度
+     * @param range     范围
+     */
+    public ZMapView poiSearchNext(String keywords, String type, String city, int pageSize,
+                                  double latitude, double longitude, int range) {
+        poiSearchCurrentPage++;
+        return poiSearch(keywords, type, city, pageSize, latitude, longitude, range);
     }
 
     /**
@@ -1586,7 +1616,8 @@ public class ZMapView extends MapView implements
                 locationData.setCurrentAddress(amapLocation.getAddress());// 地址，如果option中设置isNeedAddress为false，则没有此结果，网络定位结果中会有地址信息，GPS定位不返回地址信息。
                 locationData.setCurrentCountry(amapLocation.getCountry());// 国家信息
                 locationData.setCurrentProv(amapLocation.getProvince());// 省信息
-                locationData.setCurrentCity(amapLocation.getCity());// 城市信息
+                mCurrentCityName = amapLocation.getCity();
+                locationData.setCurrentCity(mCurrentCityName);// 城市信息
                 locationData.setCurrentDistrict(amapLocation.getDistrict());// 城区信息
                 locationData.setCurrentStreet(amapLocation.getStreet());// 街道信息
                 locationData.setCurrentStreetNum(amapLocation.getStreetNum());// 街道门牌号信息
