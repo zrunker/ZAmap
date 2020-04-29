@@ -37,6 +37,8 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
+import com.amap.api.maps.model.Polyline;
+import com.amap.api.maps.model.PolylineOptions;
 import com.amap.api.maps.model.animation.Animation;
 import com.amap.api.maps.model.animation.ScaleAnimation;
 import com.amap.api.services.core.AMapException;
@@ -155,6 +157,9 @@ public class ZMapView extends MapView implements
     private int mSearchMode = RouteSearch.DRIVING_SINGLE_DEFAULT;// 当前查询模式
     private int mSearchRouteStartIcon = R.drawable.amap_start;
     private int mSearchRouteEndIcon = R.drawable.amap_end;
+
+    // 轨迹
+    private Polyline polyline;
 
     private PoiSearch.Query mPoiQuery;// Poi查询条件类
     private PoiSearch mPoiSearch;// POI搜索
@@ -2121,5 +2126,47 @@ public class ZMapView extends MapView implements
     // 地址坐标转LatLng
     public LatLng toLatLng(double latitude, double longitude) {
         return new LatLng(latitude, longitude);
+    }
+
+    /**
+     * 绘制直线
+     *
+     * @param latLngs 轨迹点
+     */
+    public void addPolyline(List<LatLng> latLngs) {
+        addPolyline(latLngs, 10, Color.argb(255, 1, 1, 1));
+    }
+
+    /**
+     * 绘制直线
+     *
+     * @param latLngs 轨迹点
+     * @param width   关机宽度
+     */
+    public void addPolyline(List<LatLng> latLngs, int width) {
+        addPolyline(latLngs, width, Color.argb(255, 1, 1, 1));
+    }
+
+    /**
+     * 绘制直线
+     *
+     * @param latLngs 轨迹点
+     * @param width   关机宽度
+     * @param color   轨迹颜色
+     */
+    public void addPolyline(List<LatLng> latLngs, int width, int color) {
+        if (polyline != null)
+            polyline.remove();
+        polyline = getAMap().addPolyline(new PolylineOptions()
+                .addAll(latLngs).width(width).color(color));
+    }
+
+    /**
+     * 绘制直线
+     */
+    public void addPolyline(PolylineOptions polylineOptions) {
+        if (polyline != null)
+            polyline.remove();
+        polyline = getAMap().addPolyline(polylineOptions);
     }
 }

@@ -1,11 +1,13 @@
 package cc.ibooker.zamap;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.amap.api.maps.model.LatLng;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.core.SuggestionCity;
@@ -248,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
             public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
 
             }
-        }).poiSearch("大学",null,null, 10);
+        }).poiSearch("大学", null, null, 10);
     }
 
     // 路线规划监听
@@ -331,4 +333,13 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         }).calculateRouteDistance(mStartPoint, mEndPoint);
     }
 
+    // 轨迹
+    public void enterPolyline(View view) {
+        List<LatLng> latLngs = new ArrayList<>();
+        latLngs.add(new LatLng(39.999391, 116.135972));
+        latLngs.add(new LatLng(39.898323, 116.057694));
+        latLngs.add(new LatLng(39.900430, 116.265061));
+        latLngs.add(new LatLng(39.955192, 116.140092));
+        zAmapView.addPolyline(latLngs, 10, Color.parseColor("#FF0066FF"));
+    }
 }
