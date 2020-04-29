@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView
 //                .setRouteSearchListener(this)
                 .setRouteType(ZMapView.ROUTE_TYPE_DRIVE)
-                .searchRouteResult(mStartPoint, mEndPoint);
+                .searchRouteResult(mStartPoint, mEndPoint, null);
     }
 
     // 公交规划
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView
 //                .setRouteSearchListener(this)
                 .setRouteType(ZMapView.ROUTE_TYPE_BUS)
-                .searchRouteResult(mStartPoint, mEndPoint);
+                .searchRouteResult(mStartPoint, mEndPoint, null);
     }
 
     // 步行规划
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView
 //                .setRouteSearchListener(this)
                 .setRouteType(ZMapView.ROUTE_TYPE_WALK)
-                .searchRouteResult(mStartPoint, mEndPoint);
+                .searchRouteResult(mStartPoint, mEndPoint, null);
     }
 
     // 骑行规划
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView
 //                .setRouteSearchListener(this)
                 .setRouteType(ZMapView.ROUTE_TYPE_RIDE)
-                .searchRouteResult(mStartPoint, mEndPoint);
+                .searchRouteResult(mStartPoint, mEndPoint, null);
     }
 
     // 货车规划
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
         zAmapView
 //                .setRouteSearchListener(this)
                 .setRouteType(ZMapView.ROUTE_TYPE_TRUCK)
-                .searchRouteResult(mStartPoint, mEndPoint);
+                .searchRouteResult(mStartPoint, mEndPoint, null);
     }
 
     // POI搜索

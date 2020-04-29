@@ -1288,28 +1288,30 @@ public class ZMapView extends MapView implements
      * @param endPoint            终点坐标
      * @param startIcon           起点图
      * @param endIcon             终点图
+     * @param passedByPoints      途经点
      * @param routeSearchListener 路线规划监听
      */
     public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
-                                      int startIcon, int endIcon,
+                                      int startIcon, int endIcon, ArrayList<LatLonPoint> passedByPoints,
                                       @NonNull ZRouteSearchListener routeSearchListener) {
         this.zRouteSearchListener = routeSearchListener;
-        return searchRouteResult(startPoint, endPoint, startIcon, endIcon);
+        return searchRouteResult(startPoint, endPoint, startIcon, endIcon, passedByPoints);
     }
 
     /**
      * 开始搜索路径规划方案
      *
-     * @param startPoint 起点坐标
-     * @param endPoint   终点坐标
-     * @param startIcon  起点图
-     * @param endIcon    终点图
+     * @param startPoint     起点坐标
+     * @param endPoint       终点坐标
+     * @param startIcon      起点图
+     * @param endIcon        终点图
+     * @param passedByPoints 途经点
      */
     public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
-                                      int startIcon, int endIcon) {
+                                      int startIcon, int endIcon, ArrayList<LatLonPoint> passedByPoints) {
         mSearchRouteStartIcon = startIcon;
         mSearchRouteEndIcon = endIcon;
-        return searchRouteResult(startPoint, endPoint);
+        return searchRouteResult(startPoint, endPoint, passedByPoints);
     }
 
     /**
@@ -1317,21 +1319,23 @@ public class ZMapView extends MapView implements
      *
      * @param startPoint          起点坐标
      * @param endPoint            终点坐标
+     * @param passedByPoints      途经点
      * @param routeSearchListener 路线规划监听
      */
-    public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint,
+    public ZMapView searchRouteResult(@NonNull LatLonPoint startPoint, @NonNull LatLonPoint endPoint, ArrayList<LatLonPoint> passedByPoints,
                                       @NonNull ZRouteSearchListener routeSearchListener) {
         this.zRouteSearchListener = routeSearchListener;
-        return searchRouteResult(startPoint, endPoint);
+        return searchRouteResult(startPoint, endPoint, passedByPoints);
     }
 
     /**
      * 开始搜索路径规划方案
      *
-     * @param startPoint 起点坐标
-     * @param endPoint   终点坐标
+     * @param startPoint     起点坐标
+     * @param endPoint       终点坐标
+     * @param passedByPoints 途经点
      */
-    public ZMapView searchRouteResult(LatLonPoint startPoint, LatLonPoint endPoint) {
+    public ZMapView searchRouteResult(LatLonPoint startPoint, LatLonPoint endPoint, ArrayList<LatLonPoint> passedByPoints) {
         if (startPoint == null) {
             if (zRouteSearchListener != null)
                 zRouteSearchListener.onRouteSearchFail("起点未设置");
@@ -1364,7 +1368,7 @@ public class ZMapView extends MapView implements
             // 第四个参数表示避让区域，
             // 第五个参数表示避让道路
             RouteSearch.DriveRouteQuery query = new RouteSearch.DriveRouteQuery(fromAndTo, mSearchMode,
-                    null, null, "");
+                    passedByPoints, null, "");
             mRouteSearch.calculateDriveRouteAsyn(query);// 异步路径规划驾车模式查询
         } else if (mRouteType == ROUTE_TYPE_WALK) {// 步行路径规划
             RouteSearch.WalkRouteQuery query = new RouteSearch.WalkRouteQuery(fromAndTo);
@@ -1378,7 +1382,7 @@ public class ZMapView extends MapView implements
             // 第三个参数表示途经点，
             // 第四个参数货车大小 必填
             RouteSearch.TruckRouteQuery query = new RouteSearch.TruckRouteQuery(fromAndTo, mSearchMode,
-                    null, mTruckSize);
+                    passedByPoints, mTruckSize);
             mRouteSearch.calculateTruckRouteAsyn(query);
         }
         return this;
