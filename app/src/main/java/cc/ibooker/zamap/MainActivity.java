@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements ZRouteSearchListe
             public void onPoiItemSearched(PoiItem poiItem, int errorCode) {
 
             }
-        }).poiSearch("大学", null, null, 10);
+        }).poiSearch("美食", null, null, 10);
     }
 
     // 路线规划监听
