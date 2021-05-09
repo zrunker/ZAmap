@@ -14,13 +14,13 @@ import com.amap.api.navi.AMapNaviView;
 import com.amap.api.navi.AMapNaviViewListener;
 import com.amap.api.navi.AMapNaviViewOptions;
 import com.amap.api.navi.enums.NaviType;
+import com.amap.api.navi.enums.TravelStrategy;
 import com.amap.api.navi.model.AMapCalcRouteResult;
 import com.amap.api.navi.model.AMapCarInfo;
 import com.amap.api.navi.model.AMapLaneInfo;
 import com.amap.api.navi.model.AMapModelCross;
 import com.amap.api.navi.model.AMapNaviCameraInfo;
 import com.amap.api.navi.model.AMapNaviCross;
-import com.amap.api.navi.model.AMapNaviInfo;
 import com.amap.api.navi.model.AMapNaviLocation;
 import com.amap.api.navi.model.AMapNaviRouteNotifyData;
 import com.amap.api.navi.model.AMapNaviTrafficFacilityInfo;
@@ -29,8 +29,8 @@ import com.amap.api.navi.model.AimLessModeCongestionInfo;
 import com.amap.api.navi.model.AimLessModeStat;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
+import com.amap.api.navi.model.NaviPoi;
 import com.amap.api.navi.view.RouteOverLay;
-import com.autonavi.tbt.TrafficFacilityInfo;
 
 import java.util.ArrayList;
 
@@ -40,7 +40,8 @@ import cc.ibooker.amaplib.listeners.ZSimpleAMapNaviListener;
 import cc.ibooker.amaplib.listeners.ZSimpleAMapNaviViewListener;
 
 /**
- * 自定义导航
+ * 自定义导航、路径规划等
+ * 注意：1、优先经纬度算路；2、暂不支持独立路径规划；
  * https://lbs.amap.com/api/android-navi-sdk/guide/route-plan/drive-route-plan
  *
  * @author 邹峰立
@@ -53,10 +54,14 @@ public class ZAMapNaviView extends AMapNaviView
     private ArrayList<NaviLatLng> mWayPointList;// 途经点坐标
     private ArrayList<NaviLatLng> sList;// 起始点集
     private ArrayList<NaviLatLng> eList;// 终点集
+    private NaviPoi startNaviPoi, endNaviPoi;// 起始点/终止点POI
+    private ArrayList<NaviPoi> mWayNaviPoiList;// 途经点
     // 当前的导航类型
     private int currentNaviType = NaviType.GPS;
     // 路线规划策略
     private int strategy = -1;
+    // 骑行/步行路线规划策略
+    private TravelStrategy travelStrategy = TravelStrategy.SINGLE;
     // 是否开启躲避拥堵
     private boolean isOpenCongestion = true;
     // 是否走高速
@@ -138,15 +143,15 @@ public class ZAMapNaviView extends AMapNaviView
     // 获取焦点
     public void onZResume() {
         super.onResume();
-//        if (aMapNavi != null)
-//            aMapNavi.resumeNavi();
+        if (aMapNavi != null)
+            aMapNavi.resumeNavi();
     }
 
     // 暂停
     public void onZPause() {
         super.onPause();
-//        if (aMapNavi != null)
-//            aMapNavi.pauseNavi();
+        if (aMapNavi != null)
+            aMapNavi.pauseNavi();
     }
 
     // 销毁
@@ -169,6 +174,12 @@ public class ZAMapNaviView extends AMapNaviView
      */
     public ZAMapNaviView setStrategy(int strategy) {
         this.strategy = strategy;
+        return this;
+    }
+
+    // 骑行/步行路线规划策略
+    public ZAMapNaviView setTravelStrategy(TravelStrategy travelStrategy) {
+        this.travelStrategy = travelStrategy;
         return this;
     }
 
@@ -329,6 +340,55 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     /**
+     * 设置起始点POI
+     */
+    public ZAMapNaviView setStartNaviPoi(NaviPoi start) {
+        this.startNaviPoi = start;
+        return this;
+    }
+
+    /**
+     * 设置终止点POI
+     */
+    public ZAMapNaviView setEndNaviPoi(NaviPoi end) {
+        this.endNaviPoi = end;
+        return this;
+    }
+
+    /**
+     * 设置途径点集合
+     *
+     * @param mWayNaviPoiList 待设置值
+     */
+    public ZAMapNaviView setWayNaviPoiList(ArrayList<NaviPoi> mWayNaviPoiList) {
+        this.mWayNaviPoiList = mWayNaviPoiList;
+        return this;
+    }
+
+    /**
+     * 添加途径点
+     *
+     * @param naviPoi 途径点
+     */
+    public ZAMapNaviView addWayNaviPoiList(NaviPoi naviPoi) {
+        if (naviPoi != null) {
+            if (mWayNaviPoiList == null)
+                mWayNaviPoiList = new ArrayList<>();
+            mWayNaviPoiList.add(naviPoi);
+        }
+        return this;
+    }
+
+    /**
+     * 清空途经点
+     */
+    public ZAMapNaviView clearWayNaviPoiList() {
+        if (mWayNaviPoiList != null)
+            mWayNaviPoiList.clear();
+        return this;
+    }
+
+    /**
      * 设置当前的导航类型
      *
      * @param currentNaviType 待设置值
@@ -405,7 +465,7 @@ public class ZAMapNaviView extends AMapNaviView
         if (currentNaviType == NaviType.GPS)
             if (checkGpsIsOpen()) {
                 if (!aMapNavi.isGpsReady())
-                    aMapNavi.startNavi(AMapNavi.GPSNaviMode);
+                    aMapNavi.startNavi(NaviType.GPS);
                 else
                     aMapNavi.startNavi(currentNaviType);
             } else
@@ -538,44 +598,65 @@ public class ZAMapNaviView extends AMapNaviView
                     e.printStackTrace();
                 }
             }
-            if (sList == null)
+            // 经纬度算路
+            if (sList != null || eList != null) {
+                if (sList == null)
+                    // 0-驾车，1-货车，2-步行，3-骑行
+                    switch (calculateRouteType) {
+                        case 1:
+                            aMapNavi.setCarInfo(aMapCarInfo);
+                            aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                            break;
+                        case 2:
+                            if (eList != null && eList.size() > 0)
+                                aMapNavi.calculateWalkRoute(eList.get(0));
+                            break;
+                        case 3:
+                            if (eList != null && eList.size() > 0)
+                                aMapNavi.calculateRideRoute(eList.get(0));
+                            break;
+                        default:
+                            aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                            break;
+                    }
+                else
+                    switch (calculateRouteType) {
+                        case 1:
+                            aMapNavi.setCarInfo(aMapCarInfo);
+                            aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
+                            break;
+                        case 2:
+                            if (eList != null && eList.size() > 0 && sList.size() > 0)
+                                aMapNavi.calculateWalkRoute(sList.get(0), eList.get(0));
+                            break;
+                        case 3:
+                            if (eList != null && eList.size() > 0 && sList.size() > 0)
+                                aMapNavi.calculateRideRoute(sList.get(0), eList.get(0));
+                            break;
+                        default:
+                            aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
+                            break;
+                    }
+            }
+            // POI算路
+            if (startNaviPoi != null && endNaviPoi != null) {
                 // 0-驾车，1-货车，2-步行，3-骑行
                 switch (calculateRouteType) {
                     case 1:
                         aMapNavi.setCarInfo(aMapCarInfo);
-                        aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                        aMapNavi.calculateDriveRoute(startNaviPoi, endNaviPoi, mWayNaviPoiList, strategy);
                         break;
                     case 2:
-                        if (eList != null && eList.size() > 0)
-                            aMapNavi.calculateWalkRoute(eList.get(0));
+                        aMapNavi.calculateWalkRoute(startNaviPoi, endNaviPoi, travelStrategy);
                         break;
                     case 3:
-                        if (eList != null && eList.size() > 0)
-                            aMapNavi.calculateRideRoute(eList.get(0));
+                        aMapNavi.calculateRideRoute(startNaviPoi, endNaviPoi, travelStrategy);
                         break;
                     default:
-                        aMapNavi.calculateDriveRoute(eList, mWayPointList, strategy);
+                        aMapNavi.calculateDriveRoute(startNaviPoi, endNaviPoi, mWayNaviPoiList, strategy);
                         break;
                 }
-            else
-                switch (calculateRouteType) {
-                    case 1:
-                        aMapNavi.setCarInfo(aMapCarInfo);
-                        aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
-                        break;
-                    case 2:
-                        if (eList != null && eList.size() > 0 && sList.size() > 0)
-                            aMapNavi.calculateWalkRoute(sList.get(0), eList.get(0));
-                        break;
-                    case 3:
-                        if (eList != null && eList.size() > 0 && sList.size() > 0)
-                            aMapNavi.calculateRideRoute(sList.get(0), eList.get(0));
-                        break;
-                    default:
-                        aMapNavi.calculateDriveRoute(sList, eList, mWayPointList, strategy);
-                        break;
-                }
-
+            }
         }
     }
 
@@ -640,6 +721,8 @@ public class ZAMapNaviView extends AMapNaviView
     public void onCalculateRouteFailure(int i) {
         if (zaMapNaviListener != null)
             zaMapNaviListener.onCalculateRouteFailure(i);
+        if (zSimpleAMapNaviListener != null)
+            zSimpleAMapNaviListener.onCalculateRouteFailure(i);
     }
 
     @Override
@@ -676,12 +759,6 @@ public class ZAMapNaviView extends AMapNaviView
             zaMapNaviListener.onNaviInfoUpdate(naviInfo);
         if (zSimpleAMapNaviListener != null)
             zSimpleAMapNaviListener.onNaviInfoUpdate(naviInfo);
-    }
-
-    @Override
-    public void onNaviInfoUpdated(AMapNaviInfo aMapNaviInfo) {
-        if (zaMapNaviListener != null)
-            zaMapNaviListener.onNaviInfoUpdated(aMapNaviInfo);
     }
 
     @Override
@@ -788,12 +865,6 @@ public class ZAMapNaviView extends AMapNaviView
     }
 
     @Override
-    public void OnUpdateTrafficFacility(TrafficFacilityInfo trafficFacilityInfo) {
-        if (zaMapNaviListener != null)
-            zaMapNaviListener.OnUpdateTrafficFacility(trafficFacilityInfo);
-    }
-
-    @Override
     public void updateAimlessModeStatistics(AimLessModeStat aimLessModeStat) {
         if (zaMapNaviListener != null)
             zaMapNaviListener.updateAimlessModeStatistics(aimLessModeStat);
@@ -833,12 +904,6 @@ public class ZAMapNaviView extends AMapNaviView
                     routeOverlay.setEndPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.amap_b1));
                     routeOverlay.setWayPointBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.amap_b2));
                     routeOverlay.setTrafficLine(false);
-                    try {
-                        routeOverlay.setWidth(30);
-                    } catch (Throwable e) {
-                        //宽度须>0
-                        e.printStackTrace();
-                    }
                     int[] color = new int[10];
                     color[0] = Color.BLACK;
                     color[1] = Color.RED;
@@ -846,10 +911,8 @@ public class ZAMapNaviView extends AMapNaviView
                     color[3] = Color.YELLOW;
                     color[4] = Color.GRAY;
                     routeOverlay.addToMap(color, aMapNavi.getNaviPath().getWayPointIndex());
-
-                    startNavi();
-                } else
-                    startNavi();
+                }
+                startNavi();
             }
         }
     }
@@ -869,6 +932,15 @@ public class ZAMapNaviView extends AMapNaviView
             zaMapNaviListener.onNaviRouteNotify(aMapNaviRouteNotifyData);
         if (zSimpleAMapNaviListener != null)
             zSimpleAMapNaviListener.onNaviRouteNotify(aMapNaviRouteNotifyData);
+    }
+
+    // GPS信号弱
+    @Override
+    public void onGpsSignalWeak(boolean b) {
+        if (zaMapNaviListener != null)
+            zaMapNaviListener.onGpsSignalWeak(b);
+        if (zSimpleAMapNaviListener != null)
+            zSimpleAMapNaviListener.onGpsSignalWeak(b);
     }
 
     /**
@@ -903,4 +975,97 @@ public class ZAMapNaviView extends AMapNaviView
         );
         return this;
     }
+
+    /**
+     * 启动组件进行直接导航时，设置是否进行算路 (只有在直接跳转导航页的情况下才生效)
+     *
+     * @param needCalculateRouteWhenPresent true : 算路，false : 启动组件以后不会算路直接开启导航。默认为true。
+     * @since 5.6.0
+     */
+    public ZAMapNaviView setNeedCalculateRouteWhenPresent(boolean needCalculateRouteWhenPresent) {
+        this.setNeedCalculateRouteWhenPresent(needCalculateRouteWhenPresent);
+        return this;
+    }
+
+    /**
+     * 设置退出导航组件是否销毁导航实例
+     *
+     * @param destroy true-退出导航页时停止导航，退出组件时销毁导航
+     *                false-组件直接导航时，退出导航页不会停止导航，退出组件也不会销毁导航
+     * @since 5.6.0
+     */
+    public ZAMapNaviView setNeedDestroyDriveManagerInstanceWhenNaviExit(boolean destroy) {
+        this.setNeedDestroyDriveManagerInstanceWhenNaviExit(destroy);
+        return this;
+    }
+
+    /**
+     * 设置车辆信息，进行尾号限行与货车导航
+     *
+     * @param carInfo {@link AMapCarInfo}<br>
+     * @since 6.0.0
+     */
+    public ZAMapNaviView setCarInfo(AMapCarInfo carInfo) {
+        this.setCarInfo(carInfo);
+        return this;
+    }
+
+    /**
+     * 设置是否使用内部语音播报
+     *
+     * @param isUseInnerVoice 是否使用内部语音播报
+     *                        注意：6.1.0版本开始，默认值改为true
+     * @since 6.0.0
+     */
+    public ZAMapNaviView setUseInnerVoice(boolean isUseInnerVoice) {
+        this.setUseInnerVoice(isUseInnerVoice);
+        return this;
+    }
+
+    /**
+     * 设置组件规划路线的策略，默认为{@link com.amap.api.navi.enums.PathPlanningStrategy#DRIVING_MULTIPLE_ROUTES_DEFAULT}，速度优先+躲避拥堵+距离较短，注意仅支持多路线策略
+     *
+     * @param routeStrategy {@link com.amap.api.navi.enums.PathPlanningStrategy}
+     */
+    public ZAMapNaviView setRouteStrategy(int routeStrategy) {
+        this.setRouteStrategy(routeStrategy);
+        return this;
+    }
+
+    /**
+     * 设置播报模式
+     *
+     * @param context 上下文对象
+     * @param mode    1-简洁播报 2-详细播报 3-静音模式
+     * @since 7.1.0
+     */
+    public ZAMapNaviView setBroadcastMode(Context context, int mode) {
+        this.setBroadcastMode(context, mode);
+        return this;
+    }
+
+    /**
+     * 设置导航视角
+     *
+     * @param context 上下文对象
+     * @param mode    1-正北向上 2-车头向上
+     * @since 7.1.0
+     */
+    public ZAMapNaviView setCarDirectionMode(Context context, int mode) {
+        this.setCarDirectionMode(context, mode);
+        return this;
+    }
+
+    /**
+     * 设置比例尺智能缩放是否开启
+     *
+     * @param context 上下文对象
+     * @param enable  是否开启
+     * @since 7.1.0
+     */
+    public ZAMapNaviView setScaleAutoChangeEnable(Context context, boolean enable) {
+        this.setScaleAutoChangeEnable(context, enable);
+        return this;
+    }
+
 }

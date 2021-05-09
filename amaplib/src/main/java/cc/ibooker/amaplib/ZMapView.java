@@ -92,6 +92,7 @@ import cc.ibooker.amaplib.overlays.TruckRouteColorfulOverLay;
 import cc.ibooker.amaplib.overlays.ViewPoiOverlay;
 import cc.ibooker.amaplib.overlays.WalkRouteOverlay;
 import cc.ibooker.amaplib.util.AMapUtil;
+import cc.ibooker.amaplib.util.SensorEventHelper;
 
 import static com.amap.api.fence.GeoFenceClient.GEOFENCE_IN;
 import static com.amap.api.fence.GeoFenceClient.GEOFENCE_OUT;

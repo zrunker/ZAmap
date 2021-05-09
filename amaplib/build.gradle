@@ -40,5 +40,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    api files('libs/AMap3DMap_7.1.0_AMapNavi_7.1.0_AMapSearch_7.1.0_AMapTrack_1.1.0_AMapLocation_4.7.2_20191030.jar')
+    api files('libs/AMap3DMap_7.9.1_AMapNavi_7.9.1_AMapSearch_7.9.0_AMapTrack_1.4.0_AMapLocation_5.3.1_20210414.jar')
 }
