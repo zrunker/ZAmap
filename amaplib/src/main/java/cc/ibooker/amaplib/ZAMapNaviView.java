@@ -543,11 +543,16 @@ public class ZAMapNaviView extends AMapNaviView
             zaMapNaviViewListener.onNaviViewLoaded();
     }
 
-    // 导航地图类型更改
+    /**
+     * 组件地图白天黑夜模式切换回调
+     *
+     * @param mapType 枚举值参考AMap类, 3-黑夜，4-白天
+     * @since 6.7.0
+     */
     @Override
-    public void onMapTypeChanged(int i) {
+    public void onMapTypeChanged(int mapType) {
         if (zaMapNaviViewListener != null)
-            zaMapNaviViewListener.onMapTypeChanged(i);
+            zaMapNaviViewListener.onMapTypeChanged(mapType);
     }
 
     // 导航视图是否展示模式
@@ -677,7 +682,12 @@ public class ZAMapNaviView extends AMapNaviView
             zSimpleAMapNaviListener.onTrafficStatusUpdate();
     }
 
-    // 位置变化监听
+    /**
+     * 当GPS位置有更新时的回调函数。
+     *
+     * @param aMapNaviLocation 当前位置的定位信息。
+     * @since 5.2.0
+     */
     @Override
     public void onLocationChange(AMapNaviLocation aMapNaviLocation) {
         if (zaMapNaviListener != null)
@@ -686,12 +696,24 @@ public class ZAMapNaviView extends AMapNaviView
             zSimpleAMapNaviListener.onLocationChange(aMapNaviLocation);
     }
 
+    /**
+     * 导航播报信息回调函数。
+     *
+     * @param s 播报文字。
+     * @since 5.2.0
+     */
     @Override
     public void onGetNavigationText(int i, String s) {
         if (zaMapNaviListener != null)
             zaMapNaviListener.onGetNavigationText(i, s);
     }
 
+    /**
+     * 导航播报信息回调函数。
+     *
+     * @param s 播报文字。
+     * @since 5.2.0
+     */
     @Override
     public void onGetNavigationText(String s) {
         if (zaMapNaviListener != null)

@@ -36,5 +36,11 @@
             android:value="52e14a8a4538e61eb1883de66371e532" />
         <!-- 高德地图-定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" />
+
+        <!--导航页面-->
+        <activity
+            android:name="com.amap.api.navi.AmapRouteActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|navigation"
+            android:theme="@android:style/Theme.NoTitleBar" />
     </application>
 </manifest>
